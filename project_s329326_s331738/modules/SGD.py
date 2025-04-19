@@ -8,11 +8,22 @@ from helper_functions import reshape_ratings_dataframe
 
 class my_SGD:
     """
-        SGD (Stochastic Gradient Descent) model
+    SGD (Stochastic Gradient Descent) model
 
     """
 
     def __init__(self, lr=0.06, lmb=0, n_epochs=500, optimizer_name="Adam", device=None):
+        """
+        Initializing of SGD model where chosen optimizer minimizes function:
+        $\sum_{i,j: z[i, j] \neq NaN} (z[i, j] - W_i^T * H_j) ** 2 + \lmb * (||w_i||^2 + ||h_j||^2)$
+
+        :param lr: learning rate
+        :param lmb: ridge penalty rate, if lmb=0 then sum of squared errors is minimize
+        :param n_epochs: number of repeats
+        :param optimizer_name:
+        :param device:
+        """
+
         self.lr = lr
         self.lmb = lmb
         self.n_epochs = n_epochs
@@ -29,12 +40,13 @@ class my_SGD:
         W_r = torch.randn((Z_tensor.shape[0], r), requires_grad=True, dtype=torch.float, device=self.device)
         H_r = torch.randn((r, Z_tensor.shape[1]), requires_grad=True, dtype=torch.float, device=self.device)
 
-        # subset of rows and columns dataframe with not nulls
-        notnull_row_idx, notnull_col_idx = np.where(Z.notnull())
+        # select indexes where data is nan
+        notnulls = ~Z_tensor.isnan()
+        notnull_row_idx, notnull_col_idx = torch.where(notnulls)
 
-        unique_rows = torch.unique(torch.tensor(notnull_row_idx)).detach()
-        unique_cols = torch.unique(torch.tensor(notnull_col_idx)).detach()
-        print(unique_rows)
+        # select unique indexes where data is nan for slicing W_r, H_r
+        unique_rows = torch.unique(notnull_row_idx)
+        unique_cols = torch.unique(notnull_col_idx)
 
         if self.optimizer_name.lower() == "sgd":
             optimizer = torch.optim.SGD([W_r, H_r], lr=self.lr)
@@ -44,19 +56,14 @@ class my_SGD:
             raise ValueError("Unsupported optimizer. Choose 'SGD' or 'Adam'.")
 
         for epoch in range(self.n_epochs):
-            actual = Z_tensor[unique_rows, unique_cols]
-            print(actual)
-            predicted = torch.matmul(W_r[unique_rows, :], H_r[:, unique_cols])
-            print(predicted.shape)
+            error = Z_tensor - torch.matmul(W_r, H_r)
 
-            MSE = torch.mean(torch.pow(actual - predicted, 2))
-
+            squared_error = (error[notnulls]) ** 2
             reg_W = torch.sum(W_r[unique_rows] ** 2)
             reg_H = torch.sum(H_r[:, unique_cols] ** 2)
-
             regularization = self.lmb * (reg_W + reg_H)
 
-            loss = MSE + regularization
+            loss = torch.sum(squared_error) + regularization
 
             loss.backward()
 
@@ -72,13 +79,19 @@ class my_SGD:
         self.H_r = H_r
 
     def get_recovered_Z(self):
+        """
+        To do: rounding to 0 or .5 to respect rating rule
+        :return:
+        """
         return torch.matmul(self.W_r, self.H_r)
 
 
 if __name__ == "__main__":
-    # print(os.getcwd())
+    # print(os.getcwd()) # show where you are to better write file track
+
+    # Example of usage
     Z = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(Z)
 
-    model = my_SGD(lmb=0.3)
+    model = my_SGD(lmb=0.3, n_epochs=100)
     model.fit(Z2, r=1)
