@@ -1,8 +1,6 @@
 import torch
 import pandas as pd
 import numpy as np
-from pandas.core.algorithms import unique1d
-
 from helper_functions import reshape_ratings_dataframe
 
 
@@ -90,8 +88,8 @@ if __name__ == "__main__":
     # print(os.getcwd()) # show where you are to better write file track
 
     # Example of usage
-    Z = pd.read_csv("../data/ratings.csv")
-    Z2 = reshape_ratings_dataframe(Z)
+    ratings = pd.read_csv("../data/ratings.csv")
+    Z2 = reshape_ratings_dataframe(ratings)
 
     model = my_SGD(lmb=0.3, n_epochs=100)
     model.fit(Z2, r=1)
