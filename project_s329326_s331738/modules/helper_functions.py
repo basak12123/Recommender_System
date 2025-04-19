@@ -14,9 +14,3 @@ def reshape_ratings_dataframe(ratings_df):
 
     reshape_rating_df = ratings_df.pivot(index='userId', columns='movieId', values='rating')
     return reshape_rating_df
-
-
-
-
-
-
