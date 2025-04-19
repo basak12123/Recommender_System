@@ -5,4 +5,11 @@
     <orderEntry type="jdk" jdkName="Python 3.11 (MCARD)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/project_s329326_s331738" />
+      </list>
+    </option>
+  </component>
 </module>
