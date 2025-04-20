@@ -16,19 +16,16 @@ def reshape_ratings_dataframe(ratings_df):
     reshape_rating_df = ratings_df.pivot(index='userId', columns='movieId', values='rating')
     return reshape_rating_df
 
-def rounding_rule():
+
+def get_right_scale_rate(df):
     """
-    To do: rounding to 0 or 0.5 all number, it is forbidden to
-    give for example 0.6/0.8 of star
+    Repair values of predicted rates.
+    :param df:
     :return:
     """
-
-
-def rounding():
-    """
-    To do: Rounding ratings with respect rounding_rule
-    :return:
-    """
+    df.where(df <= 5, other=5, inplace=True)
+    df.where(df >= 0, other=0, inplace=True)
+    return df
 
 
 def imputate_data_with_0(df):
@@ -44,20 +41,20 @@ def imputate_data_with_0(df):
 # not rounds properly function; round to 1 number after coma.
 def imputate_data_with_mean(df):
     """
-       To think how impute by mean: impute missing values mean of rating each user
-       or mean of rating each movie - now is by each movie
+    To think how impute by mean: impute missing values mean of rating each user
+    or mean of rating each movie - now is by each movie
 
-       :param df: DataFrame object which was transformed by reshape_ratings_dataframe function
-       :return: DataFrame object without missing data which were replaced by mean of each movie
+    :param df: DataFrame object which was transformed by reshape_ratings_dataframe function
+    :return: DataFrame object without missing data which were replaced by mean of each movie
     """
-    df.where(pd.notna(df), df.mean(), axis="columns")
-
-    return df.where(pd.notna(df), df.mean(), axis="columns")
+    return (2 * df.where(pd.notna(df), df.mean(), axis="columns")).round() / 2
 
 
 # check
-ratings = pd.read_csv("../data/ratings.csv")
-Z2 = reshape_ratings_dataframe(ratings)
+if __name__ == "__main__":
+    ratings = pd.read_csv("../data/ratings.csv")
+    Z2 = reshape_ratings_dataframe(ratings)
 
-Z2_0 = imputate_data_with_0(Z2)
-Z2_mean = imputate_data_with_mean(Z2)
+    Z2_0 = imputate_data_with_0(Z2)
+    Z2_mean = imputate_data_with_mean(Z2)
+
