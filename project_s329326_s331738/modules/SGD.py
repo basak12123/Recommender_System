@@ -1,7 +1,7 @@
 import torch
 import pandas as pd
 import numpy as np
-from helper_functions import reshape_ratings_dataframe
+from helper_functions import reshape_ratings_dataframe, get_right_scale_rate
 
 
 class my_SGD:
@@ -81,7 +81,11 @@ class my_SGD:
         To do: rounding to 0 or .5 to respect rating rule
         :return:
         """
-        return torch.matmul(self.W_r, self.H_r)
+        Z_recovered_tensor = torch.matmul(self.W_r, self.H_r)
+        Z_recovered_array = Z_recovered_tensor.detach().numpy()
+        Z_recovered_df = (2 * get_right_scale_rate(pd.DataFrame(Z_recovered_array))).round()
+
+        return Z_recovered_df / 2
 
 
 if __name__ == "__main__":
@@ -92,4 +96,5 @@ if __name__ == "__main__":
     Z2 = reshape_ratings_dataframe(ratings)
 
     model = my_SGD(lmb=0.3, n_epochs=100)
-    model.fit(Z2, r=1)
+    model.fit(Z2, r=200)
+    print(model.get_recovered_Z())
