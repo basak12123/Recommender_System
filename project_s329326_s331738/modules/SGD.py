@@ -78,7 +78,7 @@ class my_SGD:
 
     def get_recovered_Z(self):
         """
-        To do: rounding to 0 or .5 to respect rating rule
+        Recovering Z function with proper rounding
         :return:
         """
         Z_recovered_tensor = torch.matmul(self.W_r, self.H_r)
@@ -86,6 +86,14 @@ class my_SGD:
         Z_recovered_df = (2 * get_right_scale_rate(pd.DataFrame(Z_recovered_array))).round()
 
         return Z_recovered_df / 2
+
+    def predict(self, user_index, item_index):
+        """
+        To do
+        :param user_index:
+        :param item_index:
+        :return:
+        """
 
 
 if __name__ == "__main__":
