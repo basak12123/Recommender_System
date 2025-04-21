@@ -1,37 +1,30 @@
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import NMF
 import numpy as np
 import pandas as pd
 from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
 
-class my_SVD1(TruncatedSVD):
-
-    def __init__(self, n_components=5, random_state=42):
+class my_NMF(NMF):
+    def __init__(self, n_components=10, init='random', max_iter = 100, random_state=42):
         """
-        Initialize the SVD1 model.
+                Initialize the NMF model.
 
-        :param n_components: Number of singular values/components to keep (rank r).
-        :param random_state: Random seed.
+                :param n_components: Number of singular values/components to keep (rank r).
+                :param random_state: Random seed.
         """
-        super().__init__(n_components=n_components, random_state=random_state)
+        super().__init__(n_components=n_components, init = init, max_iter=max_iter, random_state=random_state)
         self.W = None
         self.H = None
 
     def fit(self, Z):
         """
-        Fit the TruncatedSVD model to the input matrix Z, and compute W and H.
+        Fit the NMF model to the input matrix Z, and compute W and H.
 
         :param Z: np.ndarray, shape (n_users, n_items). Fully populated (no missing entries) rating matrix.
         """
         super().fit(Z)
-        # singular_values_ and components_ set by super().fit
-        sigma = self.singular_values_
-        Sigma = np.diag(sigma)
-        VT = self.components_
-        # transform(Z) yields U_r * Sigma_r
-        URSigma = super().transform(Z)
         # Compute W and H
-        self.W = URSigma / sigma
-        self.H = Sigma.dot(VT)
+        self.W = self.fit_transform(Z)
+        self.H = self.components_
         return self
 
     def predict(self, user_index, item_index):
@@ -54,7 +47,7 @@ if __name__ == "__main__":
     Z2 = imputate_data_with_0(Z2)
     print(Z2)
 
-    model = my_SVD1(n_components=234, random_state=42)
+    model = my_NMF(n_components=23, max_iter=500, random_state=42)
     model.fit(Z2)
 
     prediction = model.predict([1, 2, 3, 609, 0], [0, 1, 2, 3])
