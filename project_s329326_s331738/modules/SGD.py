@@ -1,7 +1,7 @@
 import torch
 import pandas as pd
 import numpy as np
-from helper_functions import reshape_ratings_dataframe, get_right_scale_rate
+from helper_functions import reshape_ratings_dataframe
 
 
 class my_SGD:
@@ -10,7 +10,7 @@ class my_SGD:
 
     """
 
-    def __init__(self, lr=0.06, lmb=0, n_epochs=500, optimizer_name="Adam", device=None):
+    def __init__(self, lr=0.06, lmb=0, r_components = 5, n_epochs=500, optimizer_name="Adam", device=None):
         """
         Initializing of SGD model where chosen optimizer minimizes function:
         $\sum_{i,j: z[i, j] \neq NaN} (z[i, j] - W_i^T * H_j) ** 2 + \lmb * (||w_i||^2 + ||h_j||^2)$
@@ -24,6 +24,7 @@ class my_SGD:
 
         self.lr = lr
         self.lmb = lmb
+        self.r = r_components
         self.n_epochs = n_epochs
         self.optimizer_name = optimizer_name
         self.W_r = None
@@ -31,12 +32,12 @@ class my_SGD:
         self.device = device if device is not None else torch.device("cpu")
         self.loss_list = []
 
-    def fit(self, Z, r, verbose=True):
+    def fit(self, Z, verbose=True):
         self.loss_list = []
 
         Z_tensor = torch.tensor(np.array(Z))
-        W_r = torch.randn((Z_tensor.shape[0], r), requires_grad=True, dtype=torch.float, device=self.device)
-        H_r = torch.randn((r, Z_tensor.shape[1]), requires_grad=True, dtype=torch.float, device=self.device)
+        W_r = torch.randn((Z_tensor.shape[0], self.r), requires_grad=True, dtype=torch.float, device=self.device)
+        H_r = torch.randn((self.r, Z_tensor.shape[1]), requires_grad=True, dtype=torch.float, device=self.device)
 
         # select indexes where data is nan
         notnulls = ~Z_tensor.isnan()
@@ -83,7 +84,7 @@ class my_SGD:
         """
         Z_recovered_tensor = torch.matmul(self.W_r, self.H_r)
         Z_recovered_array = Z_recovered_tensor.detach().numpy()
-        Z_recovered_df = (2 * get_right_scale_rate(pd.DataFrame(Z_recovered_array))).round()
+        Z_recovered_df = (2 * pd.DataFrame(Z_recovered_array)).round().clip(0.0, 5.0)
 
         return Z_recovered_df / 2
 
@@ -103,6 +104,6 @@ if __name__ == "__main__":
     ratings = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
 
-    model = my_SGD(lmb=0.3, n_epochs=100)
-    model.fit(Z2, r=200)
+    model = my_SGD(lmb=0.3, r_components=200, n_epochs=100)
+    model.fit(Z2)
     print(model.get_recovered_Z())

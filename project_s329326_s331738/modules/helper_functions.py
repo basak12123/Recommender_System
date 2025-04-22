@@ -17,17 +17,6 @@ def reshape_ratings_dataframe(ratings_df):
     return reshape_rating_df
 
 
-def get_right_scale_rate(df):
-    """
-    Repair values of predicted rates.
-    :param df:
-    :return:
-    """
-    df.where(df <= 5, other=5, inplace=True)
-    df.where(df >= 0, other=0, inplace=True)
-    return df
-
-
 def imputate_data_with_0(df):
     """
     Imputation missing data by replace them with 0.
