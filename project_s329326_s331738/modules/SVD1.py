@@ -45,7 +45,7 @@ class my_SVD1(TruncatedSVD):
         if self.W is None or self.H is None:
             raise ValueError("Model is not fitted yet. Call fit() first.")
         val = self.W[user_index].dot(self.H[:, item_index])
-        return np.clip(np.round(val * 2) / 2, 0, 5)
+        return pd.DataFrame((val * 2) / 2).round().clip(0, 5)
 
 
 if __name__ == "__main__":

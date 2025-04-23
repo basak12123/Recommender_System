@@ -4,7 +4,7 @@ import pandas as pd
 from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
 
 class my_NMF(NMF):
-    def __init__(self, n_components=10, init='random', max_iter = 100, random_state=42):
+    def __init__(self, n_components=10, init='random', max_iter=100, random_state=42):
         """
                 Initialize the NMF model.
 
@@ -38,17 +38,20 @@ class my_NMF(NMF):
         if self.W is None or self.H is None:
             raise ValueError("Model is not fitted yet. Call fit() first.")
         val = self.W[user_index].dot(self.H[:, item_index])
-        return np.clip(np.round(val * 2) / 2, 0, 5)
+        return pd.DataFrame((val * 2) / 2).round().clip(0, 5)
 
 
 if __name__ == "__main__":
     ratings = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
     Z2 = imputate_data_with_0(Z2)
-    print(Z2)
+    #print(Z2)
 
-    model = my_NMF(n_components=23, max_iter=500, random_state=42)
-    model.fit(Z2)
+    #model = my_NMF(n_components=23, max_iter=500, random_state=42)
+    #model.fit(Z2)
 
-    prediction = model.predict([1, 2, 3, 609, 0], [0, 1, 2, 3])
-    print(prediction)
+    #prediction = model.predict([1, 2, 3, 609, 0], [0, 1, 2, 3])
+    #print(prediction)
+
+
+    print(Z2[[1,2,3]])
