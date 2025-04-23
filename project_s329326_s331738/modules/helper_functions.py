@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def reshape_ratings_dataframe(ratings_df):
@@ -37,6 +38,9 @@ def imputate_data_with_mean(df):
     :return: DataFrame object without missing data which were replaced by mean of each movie
     """
     return (2 * df.where(pd.notna(df), df.mean(), axis="columns")).round() / 2
+
+def rmse(y_true, y_pred):
+    np.sqrt(np.mean((y_true - y_pred) ** 2))
 
 
 # check

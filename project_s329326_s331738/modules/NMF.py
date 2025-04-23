@@ -11,7 +11,7 @@ class my_NMF(NMF):
                 :param n_components: Number of singular values/components to keep (rank r).
                 :param random_state: Random seed.
         """
-        super().__init__(n_components=n_components, init = init, max_iter=max_iter, random_state=random_state)
+        super().__init__(n_components=n_components, init=init, max_iter=max_iter, random_state=random_state)
         self.W = None
         self.H = None
 
@@ -38,7 +38,7 @@ class my_NMF(NMF):
         if self.W is None or self.H is None:
             raise ValueError("Model is not fitted yet. Call fit() first.")
         val = self.W[user_index].dot(self.H[:, item_index])
-        return pd.DataFrame((val * 2) / 2).round().clip(0, 5)
+        return pd.DataFrame(val * 2).round().clip(0, 10)/2
 
 
 if __name__ == "__main__":
@@ -47,11 +47,10 @@ if __name__ == "__main__":
     Z2 = imputate_data_with_0(Z2)
     #print(Z2)
 
-    #model = my_NMF(n_components=23, max_iter=500, random_state=42)
-    #model.fit(Z2)
+    model = my_NMF(n_components=23, max_iter=500, random_state=42)
+    model.fit(Z2)
 
-    #prediction = model.predict([1, 2, 3, 609, 0], [0, 1, 2, 3])
-    #print(prediction)
-
-
-    print(Z2[[1,2,3]])
+    prediction = model.predict([1, 2, 3, 609, 0], [0, 1, 2, 3])
+    print(prediction)
+    #print(Z2)
+    print(ratings)
