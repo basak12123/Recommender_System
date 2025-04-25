@@ -1,7 +1,9 @@
 import torch
 import pandas as pd
 import numpy as np
+from torch.utils.data import DataLoader, TensorDataset
 from helper_functions import reshape_ratings_dataframe
+from tools.build_train_matrix import build_train_set, build_test_set
 
 
 class my_SGD:
@@ -10,7 +12,7 @@ class my_SGD:
 
     """
 
-    def __init__(self, lr=0.06, lmb=0, r_components = 5, n_epochs=500, optimizer_name="Adam", device=None):
+    def __init__(self, lr=0.06, lmb=0, r_components=5, n_epochs=500, optimizer_name="Adam", device=None):
         """
         Initializing of SGD model where chosen optimizer minimizes function:
         $\sum_{i,j: z[i, j] \neq NaN} (z[i, j] - W_i^T * H_j) ** 2 + \lmb * (||w_i||^2 + ||h_j||^2)$
@@ -29,23 +31,27 @@ class my_SGD:
         self.optimizer_name = optimizer_name
         self.W_r = None
         self.H_r = None
+        self.recovered_Z = None
         self.device = device if device is not None else torch.device("cpu")
         self.loss_list = []
 
-    def fit(self, Z, verbose=True):
+    def fit(self, Z, id_train_set, batch_size=1024, verbose=True):
         self.loss_list = []
 
-        Z_tensor = torch.tensor(np.array(Z))
+        Z_tensor = torch.tensor(np.array(Z), dtype=torch.float, device=self.device)
         W_r = torch.randn((Z_tensor.shape[0], self.r), requires_grad=True, dtype=torch.float, device=self.device)
         H_r = torch.randn((self.r, Z_tensor.shape[1]), requires_grad=True, dtype=torch.float, device=self.device)
 
-        # select indexes where data is nan
-        notnulls = ~Z_tensor.isnan()
-        notnull_row_idx, notnull_col_idx = torch.where(notnulls)
-
         # select unique indexes where data is nan for slicing W_r, H_r
-        unique_rows = torch.unique(notnull_row_idx)
-        unique_cols = torch.unique(notnull_col_idx)
+        train_rows, train_cols = zip(*id_train_set)
+        train_rows_tensor = torch.tensor(train_rows, device=self.device)
+        train_cols_tensor = torch.tensor(train_cols, device=self.device)
+
+        Z_train = Z_tensor[train_rows_tensor, train_cols_tensor].to(self.device)
+
+        # Dataset + DataLoader
+        train_dataset = TensorDataset(train_rows_tensor, train_cols_tensor, Z_train)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
         if self.optimizer_name.lower() == "sgd":
             optimizer = torch.optim.SGD([W_r, H_r], lr=self.lr)
@@ -55,24 +61,32 @@ class my_SGD:
             raise ValueError("Unsupported optimizer. Choose 'SGD' or 'Adam'.")
 
         for epoch in range(self.n_epochs):
-            error = Z_tensor - torch.matmul(W_r, H_r)
+            epoch_loss = 0.0
 
-            squared_error = (error[notnulls]) ** 2
-            reg_W = torch.sum(W_r[unique_rows] ** 2)
-            reg_H = torch.sum(H_r[:, unique_cols] ** 2)
-            regularization = self.lmb * (reg_W + reg_H)
+            for rows_batch, cols_batch, ratings_batch in train_loader:
+                predictions = torch.sum(W_r[rows_batch] * H_r[:, cols_batch].T, dim=1)
+                error = predictions - ratings_batch
 
-            loss = torch.sum(squared_error) + regularization
+                reg_W = torch.sum(W_r[rows_batch] ** 2)
+                reg_H = torch.sum(H_r[:, cols_batch] ** 2)
+                regularization = reg_W + reg_H
 
-            loss.backward()
+                loss = torch.sum((error ** 2)) + self.lmb * regularization
 
-            optimizer.step()
-            optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+
+                epoch_loss += loss.item()
 
             if epoch % 10 == 0:
-                self.loss_list.append(loss.item())
+                self.loss_list.append(epoch_loss)
                 if verbose:
-                    print(f"Epoch {epoch}: loss = {loss.item():.4f}")
+                    print(f"Epoch {epoch}: loss = {epoch_loss:.4f}")
+
+            # if epoch_loss > self.loss_list[-1]:
+            #     print(f"Number of performed epochs due to raise of error: {epoch}.")
+            #     break
 
         self.W_r = W_r
         self.H_r = H_r
@@ -82,11 +96,14 @@ class my_SGD:
         Recovering Z function with proper rounding
         :return:
         """
-        Z_recovered_tensor = torch.matmul(self.W_r, self.H_r)
+        with torch.no_grad():
+            Z_recovered_tensor = torch.matmul(self.W_r, self.H_r)
         Z_recovered_array = Z_recovered_tensor.detach().numpy()
-        Z_recovered_df = (2 * pd.DataFrame(Z_recovered_array)).round().clip(0.0, 5.0)
+        Z_recovered = (2 * Z_recovered_array).round().clip(0.0, 10.0)
 
-        return Z_recovered_df / 2
+        self.recovered_Z = Z_recovered / 2
+
+        return self.recovered_Z
 
     def predict(self, user_index, item_index):
         """
@@ -95,6 +112,15 @@ class my_SGD:
         :param item_index:
         :return:
         """
+        ids = zip(user_index, item_index)
+        return self.recovered_Z[tuple(zip(*ids))]
+
+    def compute_RMSE_on_test(self, id_test_set, ratings_for_test_set):
+        test_users_id, test_movies_id = tuple(zip(*id_test_set))
+        predictions = self.predict(test_users_id, test_movies_id)
+        print(predictions)
+
+        return np.sqrt(np.mean((predictions - ratings_for_test_set) ** 2))
 
 
 if __name__ == "__main__":
@@ -103,7 +129,10 @@ if __name__ == "__main__":
     # Example of usage
     ratings = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
+    id_train, Z2_train = build_train_set(Z2, 60000)
+    id_test, Z2_test = build_test_set(Z2, id_train)
 
-    model = my_SGD(lmb=0.3, r_components=200, n_epochs=100)
-    model.fit(Z2)
+    model = my_SGD(lmb=0.0, r_components=6, n_epochs=100)
+    model.fit(Z2, id_train)
     print(model.get_recovered_Z())
+    print(model.compute_RMSE_on_test(id_test, Z2_test))
