@@ -105,7 +105,7 @@ class my_SGD:
 
         self.recovered_Z = Z_recovered / 2
 
-        return self.recovered_Z
+        return pd.DataFrame(self.recovered_Z)
 
     def predict(self, user_index, item_index):
         """
@@ -131,6 +131,7 @@ if __name__ == "__main__":
     # Example of usage
     ratings = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
+
     id_train, Z2_train = build_train_set(Z2, 60000)
     id_test, Z2_test = build_test_set(Z2, id_train)
 

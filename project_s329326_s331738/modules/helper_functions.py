@@ -39,6 +39,7 @@ def imputate_data_with_mean(df):
     """
     return (2 * df.where(pd.notna(df), df.mean(), axis="columns")).round() / 2
 
+
 def rmse(y_true, y_pred):
     np.sqrt(np.mean((y_true - y_pred) ** 2))
 
