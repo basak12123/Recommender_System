@@ -91,6 +91,8 @@ class my_SGD:
         self.W_r = W_r
         self.H_r = H_r
 
+        return self
+
     def get_recovered_Z(self):
         """
         Recovering Z function with proper rounding
