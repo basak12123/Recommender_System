@@ -7,12 +7,24 @@ from project_s329326_s331738.modules.helper_functions import reshape_ratings_dat
 
 
 def get_id_of_full_data(df):
+    """
+    Get ids of those pairs (user_id, movie_id) from reshaped data frame which
+    are not censored data.
+    :param df: DataFrame object which was transformed by reshape_ratings_dataframe function
+    :return: tuple of arrays with user_id and movie_id coordinates where the data is full
+    """
     array_sample = np.array(df)
     notnulls = ~np.isnan(array_sample)
     return np.where(notnulls)
 
 
 def build_train_set(df, size_of_train_test):
+    """
+    Build train set based on NOT IMPUTED reshaped data frame.
+    :param df: DataFrame object which was transformed by reshape_ratings_dataframe function (NOT IMPUTED)
+    :param size_of_train_test: number of observations in train set
+    :return: tuples with pairs (user_id, movie_id) and ratings correspond to those pairs
+    """
     notnull_row_idx, notnull_col_idx = get_id_of_full_data(df)
 
     id_not_nulls = [i for i in zip(notnull_row_idx, notnull_col_idx)]
@@ -22,6 +34,13 @@ def build_train_set(df, size_of_train_test):
 
 
 def build_test_set(df, id_train):
+    """
+    Build test set. Use this function after using build_train_set.
+    :param df: DataFrame object which was transformed by reshape_ratings_dataframe function (NOT IMPUTED)
+    :param id_train: Pairs (user_id, movie_id) which are in train set (first component of tuple from
+    function build_train_set)
+    :return: tuples with pairs (user_id, movie_id) and ratings correspond to those pairs
+    """
     notnull_row_idx, notnull_col_idx = get_id_of_full_data(df)
 
     id_not_nulls = [i for i in zip(notnull_row_idx, notnull_col_idx)]
@@ -33,6 +52,7 @@ def build_test_set(df, id_train):
 if __name__ == "__main__":
     # print(os.getcwd())
 
+    # Example of usage
     ratings = pd.read_csv("../project_s329326_s331738/data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
 
