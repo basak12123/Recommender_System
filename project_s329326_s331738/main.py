@@ -30,11 +30,11 @@ def main():
     predict_mode = (args.predict.lower() == "yes")
     model_type = args.alg.upper()
 
-    if not model_type in ['NMF', "SVD1", "SVD2", "SGD", "ALL"]:
-        print("Choose right model")
-        return
-
     if train_mode:
+        if not model_type in ['NMF', "SVD1", "SVD2", "SGD", "ALL"]:
+            print("Choose right model")
+            return
+
         print(f"Training mode activated ({model_type}).")
         Z_approx = train_model(args.train_file, model_type)
         os.makedirs(os.path.dirname(args.model_path), exist_ok=True)
