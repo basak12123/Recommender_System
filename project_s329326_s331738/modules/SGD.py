@@ -2,8 +2,6 @@ import torch
 import pandas as pd
 import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
-from helper_functions import reshape_ratings_dataframe
-from tools.build_train_matrix import build_train_set, build_test_set
 
 
 class my_SGD:
@@ -127,6 +125,8 @@ class my_SGD:
 
 
 if __name__ == "__main__":
+    from helper_functions import reshape_ratings_dataframe
+    from tools.build_train_matrix import build_train_set, build_test_set
     # print(os.getcwd()) # show where you are to better write file track
 
     # Example of usage

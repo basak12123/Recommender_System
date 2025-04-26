@@ -1,8 +1,6 @@
 from sklearn.decomposition import TruncatedSVD
 import numpy as np
 import pandas as pd
-from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
-from tools.build_train_matrix import build_train_set, build_test_set
 
 
 class my_SVD2(TruncatedSVD):
@@ -84,6 +82,9 @@ class my_SVD2(TruncatedSVD):
 
 
 if __name__ == "__main__":
+    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
+    from tools.build_train_matrix import build_train_set, build_test_set
+
     ratings = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
 
