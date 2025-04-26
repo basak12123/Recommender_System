@@ -87,7 +87,7 @@ if __name__ == "__main__":
     ratings = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
 
-    id_train, Z2_train = build_train_set(Z2, 60000)
+    id_train, Z2_train = build_train_set(Z2, 0.6)
     id_test, Z2_test = build_test_set(Z2, id_train)
 
     Z2 = imputate_data_with_0(Z2)
