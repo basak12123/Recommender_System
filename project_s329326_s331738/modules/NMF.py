@@ -1,9 +1,6 @@
 from sklearn.decomposition import NMF
 import numpy as np
 import pandas as pd
-from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
-from tools.build_train_matrix import build_train_set, build_test_set
-from helper_functions import rmse
 
 class my_NMF(NMF):
     def __init__(self, n_components=10, init='random', max_iter=100, random_state=42):
@@ -58,6 +55,10 @@ class my_NMF(NMF):
 
 
 if __name__ == "__main__":
+    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
+    from tools.build_train_matrix import build_train_set, build_test_set
+    from helper_functions import rmse
+
     ratings = pd.read_csv("../data/ratings.csv")
     Z2_nt = reshape_ratings_dataframe(ratings)
     Z2 = imputate_data_with_0(Z2_nt)

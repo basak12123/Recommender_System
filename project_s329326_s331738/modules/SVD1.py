@@ -1,9 +1,7 @@
 from sklearn.decomposition import TruncatedSVD
 import numpy as np
 import pandas as pd
-from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
-from tools.build_train_matrix import build_train_set, build_test_set
-from helper_functions import rmse
+
 
 class my_SVD1(TruncatedSVD):
 
@@ -19,7 +17,7 @@ class my_SVD1(TruncatedSVD):
         self.H = None
         self.recovered_Z = None
 
-    def fit(self, Z, id_train_set):
+    def fit(self, Z):
         """
         Fit the TruncatedSVD model to the input matrix Z, and compute W and H.
 
@@ -59,6 +57,10 @@ class my_SVD1(TruncatedSVD):
 
 
 if __name__ == "__main__":
+    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
+    from tools.build_train_matrix import build_train_set, build_test_set
+    from helper_functions import rmse
+
     ratings = pd.read_csv("../data/ratings.csv")
     Z2_nt = reshape_ratings_dataframe(ratings)
     Z2 = imputate_data_with_0(Z2_nt)
@@ -67,10 +69,17 @@ if __name__ == "__main__":
     idx_test, rt_test = build_test_set(Z2_nt, idx_train)
 
     model = my_SVD1(n_components=250, random_state=42)
-    model.fit(Z2, idx_train)
+    model.fit(Z2)
     model.get_recovered_Z()
 
     prediction = model.predict(idx_test)
     print(prediction)
 
     print(rmse(prediction, rt_test))
+
+    for i in [10, 50, 100, 150, 200, 250, 300, 350, 400]:
+        ml = my_SVD1(n_components=i, random_state=42)
+        ml.fit(Z2)
+        ml.get_recovered_Z()
+        prediction = ml.predict(idx_test)
+        print(rmse(prediction, rt_test))

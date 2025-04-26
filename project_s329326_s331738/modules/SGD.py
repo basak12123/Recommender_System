@@ -12,10 +12,10 @@ class my_SGD:
 
     """
 
-    def __init__(self, lr=0.01, lmb=0, r_components=5, n_epochs=200, batch_size=1024, optimizer_name="Adam", device=None):
+    def __init__(self, lr=0.01, lmb=0, n_components=5, n_epochs=200, batch_size=1024, optimizer_name="Adam",
+                 device=None):
         """
         Initializing of SGD model where chosen optimizer minimizes function:
-        $\sum_{i,j: z[i, j] \neq NaN} (z[i, j] - W_i^T * H_j) ** 2 + \lmb * (||w_i||^2 + ||h_j||^2)$
 
         :param lr: learning rate
         :param lmb: ridge penalty rate, if lmb=0 then sum of squared errors is minimize
@@ -27,7 +27,7 @@ class my_SGD:
 
         self.lr = lr
         self.lmb = lmb
-        self.r = r_components
+        self.r = n_components
         self.n_epochs = n_epochs
         self.optimizer_name = optimizer_name
         self.batch_size = batch_size
@@ -103,9 +103,9 @@ class my_SGD:
         with torch.no_grad():
             Z_recovered_tensor = torch.matmul(self.W_r, self.H_r)
         Z_recovered_array = Z_recovered_tensor.detach().numpy()
-        Z_recovered = (2 * Z_recovered_array).round().clip(0.0, 10.0)
+        Z_recovered = (2 * Z_recovered_array).round().clip(0.0, 10.0) / 2
 
-        self.recovered_Z = Z_recovered / 2
+        self.recovered_Z = Z_recovered
 
         return pd.DataFrame(self.recovered_Z)
 
