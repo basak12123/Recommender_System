@@ -122,7 +122,6 @@ class my_SGD:
     def compute_RMSE_on_test(self, id_test_set, ratings_for_test_set):
         test_users_id, test_movies_id = tuple(zip(*id_test_set))
         predictions = self.predict(test_users_id, test_movies_id)
-        print(predictions)
 
         return np.sqrt(np.mean((predictions - ratings_for_test_set) ** 2))
 
