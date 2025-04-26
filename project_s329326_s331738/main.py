@@ -4,6 +4,7 @@ import pickle
 from modules.NMF import my_NMF
 from modules.helper_functions import reshape_ratings_dataframe, imputate_data_with_0
 from modules.train_functions import train_model
+from modules.predict_functions import predict_data
 
 
 def parse_arguments():
@@ -49,6 +50,11 @@ def main():
             return
         with open(args.model_path, "rb") as f:
             model_data = pickle.load(f)
+
+        predictions = predict_data(args.test_file, model_data)
+
+        os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
+        predictions.to_csv(args.output_file, index=False)
 
 
 if __name__ == "__main__":

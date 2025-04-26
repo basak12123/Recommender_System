@@ -9,31 +9,31 @@ from .build_train_matrix import build_train_set
 
 
 def train_model(train_file, model_type, n_components=5):
-    Z = reshape_ratings_dataframe(train_file)
-    Z = imputate_data_with_0(Z)
+    Z, usermap, moviemap = reshape_ratings_dataframe(train_file)
+    Z_imputed = imputate_data_with_0(Z)
 
     if model_type == "NMF":
         model = my_NMF(n_components=n_components, init='random')
-        model.fit(Z)
+        model.fit(Z_imputed)
         model.get_recovered_Z()
-        return model.recovered_Z
+        return model.recovered_Z, usermap, moviemap
 
     if model_type == "SVD1":
         model = my_SVD1(n_components=n_components)
-        model.fit(Z)
+        model.fit(Z_imputed)
         model.get_recovered_Z()
-        return model.recovered_Z
+        return model.recovered_Z, usermap, moviemap
 
     if model_type == "SVD2":
-        id_train, Z2_train = build_train_set(Z, 0.8)
+        id_train, Z_train = build_train_set(Z, 0.8)
         model = my_SVD2(n_components=n_components)
         model.fit(Z, id_train_set=id_train)
         model.get_recovered_Z()
-        return model.recovered_Z
+        return model.recovered_Z, usermap, moviemap
 
     if model_type == "SGD":
-        id_train, Z2_train = build_train_set(Z, 0.8)
+        id_train, Z_train = build_train_set(Z, 0.8)
         model = my_SGD(n_components=n_components)
         model.fit(Z, id_train_set=id_train)
         model.get_recovered_Z()
-        return model.recovered_Z
+        return model.recovered_Z, usermap, moviemap

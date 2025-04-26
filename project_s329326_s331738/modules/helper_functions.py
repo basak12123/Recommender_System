@@ -10,12 +10,22 @@ def reshape_ratings_dataframe(ratings_file):
     The i-th and j-th element of this dataframe is rating
     from user with id equals i about movie with id equals j.
 
-    :param ratings_df: DataFrame object from ratings.csv file
+    :param ratings_file: DataFrame object from ratings.csv file
     :return: DataFrame object with Nans for movies which are not rated by specific user
     """
     ratings_df = pd.read_csv(ratings_file)
+
+    # Extract unique users and movies
+    unique_users = ratings_df["userId"].unique()
+    unique_movies = ratings_df["movieId"].unique()
+
+    # Create mappings: userId -> row index, movieId -> column index
+    user_map = {uid: i for i, uid in enumerate(sorted(unique_users))}
+    movie_map = {mid: j for j, mid in enumerate(sorted(unique_movies))}
+
     reshape_rating_df = ratings_df.pivot(index='userId', columns='movieId', values='rating')
-    return reshape_rating_df
+
+    return reshape_rating_df, user_map, movie_map
 
 
 def imputate_data_with_0(df):
@@ -47,7 +57,7 @@ def rmse(y_true, y_pred):
 # check
 if __name__ == "__main__":
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2 = reshape_ratings_dataframe(ratings)
+    Z2 = reshape_ratings_dataframe("../data/ratings.csv")
 
     Z2_0 = imputate_data_with_0(Z2)
     Z2_mean = imputate_data_with_mean(Z2)
