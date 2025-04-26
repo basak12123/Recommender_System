@@ -1,9 +1,8 @@
 from SGD import my_SGD
-from SVD2 import my_SVD2
-from sklearn.model_selection import KFold, ParameterGrid, GridSearchCV
+from sklearn.model_selection import KFold, ParameterGrid
 import numpy as np
 import pandas as pd
-from tools.build_train_matrix import get_id_of_full_data
+from project_s329326_s331738.modules.build_train_matrix import get_id_of_full_data
 from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
 
 # DATA

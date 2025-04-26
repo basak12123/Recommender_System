@@ -5,6 +5,7 @@ from modules.NMF import my_NMF
 from modules.helper_functions import reshape_ratings_dataframe, imputate_data_with_0
 from modules.train_functions import train_model
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Simple Recommender")
     parser.add_argument("--train", type=str, default="no",
@@ -48,6 +49,7 @@ def main():
             return
         with open(args.model_path, "rb") as f:
             model_data = pickle.load(f)
+
 
 if __name__ == "__main__":
     main()

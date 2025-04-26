@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def reshape_ratings_dataframe(ratings_df):
+def reshape_ratings_dataframe(ratings_file):
     """
     Function which reshape the ratings.csv dataframe with 100836 rows and 4 columns
     on the dataframe with 610 rows (userId) x 9724 columns (movieId).
@@ -13,7 +13,7 @@ def reshape_ratings_dataframe(ratings_df):
     :param ratings_df: DataFrame object from ratings.csv file
     :return: DataFrame object with Nans for movies which are not rated by specific user
     """
-
+    ratings_df = pd.read_csv(ratings_file)
     reshape_rating_df = ratings_df.pivot(index='userId', columns='movieId', values='rating')
     return reshape_rating_df
 

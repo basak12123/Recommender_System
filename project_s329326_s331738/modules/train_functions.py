@@ -5,8 +5,10 @@ from .SGD import my_SGD
 from .SVD1 import my_SVD1
 from .SVD2 import my_SVD2
 from .helper_functions import reshape_ratings_dataframe, imputate_data_with_0
+from .build_train_matrix import build_train_set
 
-def train_model(train_file, model_type, idx = None, n_components=5):
+
+def train_model(train_file, model_type, n_components=5):
     Z = reshape_ratings_dataframe(train_file)
     Z = imputate_data_with_0(Z)
 
@@ -23,14 +25,15 @@ def train_model(train_file, model_type, idx = None, n_components=5):
         return model.recovered_Z
 
     if model_type == "SVD2":
+        id_train, Z2_train = build_train_set(Z, 0.8)
         model = my_SVD2(n_components=n_components)
-        model.fit(Z, id_train_set=idx)
+        model.fit(Z, id_train_set=id_train)
         model.get_recovered_Z()
         return model.recovered_Z
 
     if model_type == "SGD":
+        id_train, Z2_train = build_train_set(Z, 0.8)
         model = my_SGD(n_components=n_components)
-        model.fit(Z, id_train_set=idx)
+        model.fit(Z, id_train_set=id_train)
         model.get_recovered_Z()
         return model.recovered_Z
-
