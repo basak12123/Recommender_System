@@ -41,7 +41,7 @@ def imputate_data_with_mean(df):
 
 
 def rmse(y_true, y_pred):
-    np.sqrt(np.mean((y_true - y_pred) ** 2))
+    return np.sqrt(np.mean((y_true - y_pred) ** 2))
 
 
 # check
