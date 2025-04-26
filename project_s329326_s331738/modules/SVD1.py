@@ -26,15 +26,9 @@ class my_SVD1(TruncatedSVD):
         :param Z: np.ndarray, shape (n_users, n_items). Fully populated (no missing entries) rating matrix.
         """
         super().fit(Z)
-        # singular_values_ and components_ set by super().fit
-        sigma = self.singular_values_
-        Sigma = np.diag(sigma)
-        VT = self.components_
-        # transform(Z) yields U_r * Sigma_r
-        URSigma = super().transform(Z)
         # Compute W and H
-        self.W = URSigma / sigma
-        self.H = Sigma.dot(VT)
+        self.W = self.fit_transform(Z)
+        self.H = self.components_
         return self
 
     def get_recovered_Z(self):

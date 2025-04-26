@@ -2,6 +2,8 @@ from sklearn.decomposition import NMF
 import numpy as np
 import pandas as pd
 from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
+from tools.build_train_matrix import build_train_set, build_test_set
+from helper_functions import rmse
 
 class my_NMF(NMF):
     def __init__(self, n_components=10, init='random', max_iter=100, random_state=42):
@@ -14,6 +16,7 @@ class my_NMF(NMF):
         super().__init__(n_components=n_components, init=init, max_iter=max_iter, random_state=random_state)
         self.W = None
         self.H = None
+        self.recovered_Z = None
 
     def fit(self, Z):
         """
@@ -27,7 +30,19 @@ class my_NMF(NMF):
         self.H = self.components_
         return self
 
-    def predict(self, user_index, item_index):
+    def get_recovered_Z(self):
+        """
+        Recovering Z function with proper rounding
+        :return:
+        """
+        if self.W is None or self.H is None:
+            raise ValueError("Model is not fitted yet. Call fit() first.")
+        val = self.W.dot(self.H)
+        self.recovered_Z = np.clip(np.round(val*2)/2, 0, 5)
+
+        return pd.DataFrame(self.recovered_Z)
+
+    def predict(self, user_index):
         """
         Predict the rating for a given user and item.
         Returns rounded to the nearest 0.5.
@@ -37,20 +52,24 @@ class my_NMF(NMF):
         """
         if self.W is None or self.H is None:
             raise ValueError("Model is not fitted yet. Call fit() first.")
-        val = self.W[user_index].dot(self.H[:, item_index])
-        return pd.DataFrame(val * 2).round().clip(0, 10)/2
+        if self.recovered_Z is None:
+            raise ValueError("Z is not recovered yet. Call get_recovered_Z() first.")
+        return self.recovered_Z[tuple(zip(*user_index))]
 
 
 if __name__ == "__main__":
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2 = reshape_ratings_dataframe(ratings)
-    Z2 = imputate_data_with_0(Z2)
-    #print(Z2)
+    Z2_nt = reshape_ratings_dataframe(ratings)
+    Z2 = imputate_data_with_0(Z2_nt)
 
-    model = my_NMF(n_components=23, max_iter=500, random_state=42)
+    idx_train, rt_train = build_train_set(Z2_nt, 60000)
+    idx_test, rt_test = build_test_set(Z2_nt, idx_train)
+
+    model = my_NMF(n_components=250, max_iter=200, random_state=42)
     model.fit(Z2)
+    model.get_recovered_Z()
 
-    prediction = model.predict([1, 2, 3, 609, 0], [0, 1, 2, 3])
+    prediction = model.predict(idx_test)
     print(prediction)
-    #print(Z2)
-    print(ratings)
+
+    print(rmse(prediction, rt_test))
