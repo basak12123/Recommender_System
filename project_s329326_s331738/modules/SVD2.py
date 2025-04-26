@@ -30,7 +30,6 @@ class my_SVD2(TruncatedSVD):
         train_rows, train_cols = zip(*id_train_set)
         Z_train = np.array(Z)[train_rows, train_cols]
         Z_previous = np.copy(np.array(Z))
-        Z_next = np.zeros(Z_previous.shape)
 
         for epoch in range(self.n_epochs):
             # SVD on previous step Z_previous (from previous step)
@@ -94,7 +93,7 @@ if __name__ == "__main__":
     Z2 = imputate_data_with_0(Z2)
     print(Z2)
 
-    model = my_SVD2(n_components=4, n_epochs=500, random_state=42)
+    model = my_SVD2(n_components=250, n_epochs=500, random_state=42)
     model.fit(Z2, id_train)
     print(model.get_recovered_Z())
     print(model.predict([1, 3, 5], [3, 4, 1]))
