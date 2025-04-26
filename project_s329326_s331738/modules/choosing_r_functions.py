@@ -1,18 +1,20 @@
-import csv
-
 from SGD import my_SGD
-from sklearn.model_selection import KFold, ParameterGrid
+from SVD2 import my_SVD2
+from sklearn.model_selection import KFold, ParameterGrid, GridSearchCV
 import numpy as np
 import pandas as pd
 from tools.build_train_matrix import get_id_of_full_data
-from helper_functions import reshape_ratings_dataframe
+from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
 
 # DATA
 ratings = pd.read_csv("../data/ratings.csv")
-Z2 = reshape_ratings_dataframe(ratings)
+
+Z_full = reshape_ratings_dataframe(ratings)
+
+Z_imputed0 = imputate_data_with_0(Z_full)
 
 # ALL FULL DATA
-notnull_row_idx, notnull_col_idx = get_id_of_full_data(Z2)
+notnull_row_idx, notnull_col_idx = get_id_of_full_data(Z_full)
 id_not_nulls = [i for i in zip(notnull_row_idx, notnull_col_idx)][1:20]
 
 # PARAM GRID
@@ -21,15 +23,24 @@ SGD_param_grid = {
     'lmb': [0.0, 0.001, 0.01]
 }
 
+SVD2_param_grid = {
+     'n_components': [4, 6, 8],
+}
 
-def GridSearchCV_SGD(Z, grid_param, num_of_kfolds):
-    kf = KFold(n_splits=num_of_kfolds, shuffle=True, random_state=42)
+num_of_kfolds = 5
+kf = KFold(n_splits=num_of_kfolds, shuffle=True, random_state=42)
 
-    best_score = float('inf')
-    best_params = None
-    Stats = {}
 
-    for params in ParameterGrid(grid_param):
+def GridSearchCV_SGD(Z, kf, grid_param, num_of_kfolds):
+
+    # best_score = float('inf')
+    # best_params = None
+    ParamGridObj = ParameterGrid(grid_param)
+    Stats_AvgRMSE = np.zeros((len(ParamGridObj), 3))
+    Stats_FoldsRMSE = np.zeros((len(ParamGridObj), num_of_kfolds + 2))
+    i = 0
+
+    for params in ParamGridObj:
         print(f"Trying parameters: {params}")
 
         fold_scores = []
@@ -53,35 +64,28 @@ def GridSearchCV_SGD(Z, grid_param, num_of_kfolds):
 
             fold_scores.append(model.compute_RMSE_on_test(id_test_fold, ratings_test_fold))
 
-        mean_rmse = np.mean(fold_scores)
-        print(f"Mean RMSE across folds: {mean_rmse}")
+        neg_mean_rmse = - np.mean(fold_scores)
 
-        if mean_rmse < best_score:
-            best_score = mean_rmse
-            best_params = params
+        Stats_AvgRMSE[i, ] = [params['lmb'], params['r_components'], neg_mean_rmse]
+        Stats_FoldsRMSE[i, ] = [params['lmb'], params['r_components'], *fold_scores]
+        i += 1
 
-        Stats[*params.values()] = {"fold_scores": fold_scores, "mean_rmse": mean_rmse}
+    df_Stats_AvgRMSE = pd.DataFrame(Stats_AvgRMSE, columns=('lmb', 'r_component', 'neg_mean_rmse'))
+    df_Stats_FoldsRMSE = pd.DataFrame(Stats_FoldsRMSE, columns=('lmb', 'r_component', *[f'rmse_fold{i}' for i in range(1, num_of_kfolds + 1)]))
 
-    Stats['best_score'] = best_score
-    Stats['best_params'] = best_params
-    return Stats
+    return df_Stats_AvgRMSE, df_Stats_FoldsRMSE
 
 
-# grid_search = GridSearchCV_SGD(Z2, SGD_param_grid, num_of_kfolds=5)
-# # print(grid_search[(0.0, 4)])
+# model = my_SVD2()
+# grid_seach = GridSearchCV(model, SVD2_param_grid, cv=kf, scoring='neg_root_mean_squared_error')
 #
-# csv_filename = "../data/grid_search_SVD.csv"
+# print(grid_seach)
+
+
+# Stats_AvgRMSE, Stats_FoldsRMSE = GridSearchCV_SGD(Z_full, SGD_param_grid, num_of_kfolds=5)
+# print(Stats_AvgRMSE)
+# print(Stats_FoldsRMSE)
 #
-# # Writing single dictionary to CSV
-# with open(csv_filename, mode='w', newline='') as file:
-#     writer = csv.writer(file)
-#     writer.writerow(grid_search.keys())  # Write header
-#     writer.writerow(grid_search.values())  # Write values
+# Stats_AvgRMSE.to_csv("../data/grid_search_SGD_AvgRMSE.csv", index=False)
+# Stats_FoldsRMSE.to_csv("../data/grid_search_SGD_FoldsRMSE.csv", index=False)
 
-
-with open("../data/grid_search_SVD.csv", 'r') as f:
-    dict_reader = csv.DictReader(f)
-    list_of_dict = list(dict_reader)
-    g = list_of_dict[0]
-
-print(g['(0.0, 4)'])
