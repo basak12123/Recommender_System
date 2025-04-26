@@ -18,14 +18,15 @@ def get_id_of_full_data(df):
     return np.where(notnulls)
 
 
-def build_train_set(df, size_of_train_test):
+def build_train_set(df, perc_of_data_to_train):
     """
     Build train set based on NOT IMPUTED reshaped data frame.
     :param df: DataFrame object which was transformed by reshape_ratings_dataframe function (NOT IMPUTED)
-    :param size_of_train_test: number of observations in train set
+    :param perc_of_data_to_train: fraction of observations in train set
     :return: tuples with pairs (user_id, movie_id) and ratings correspond to those pairs
     """
     notnull_row_idx, notnull_col_idx = get_id_of_full_data(df)
+    size_of_train_test = int(np.floor(perc_of_data_to_train * len(notnull_row_idx)))
 
     id_not_nulls = [i for i in zip(notnull_row_idx, notnull_col_idx)]
     id_trains = random.choices(id_not_nulls, k=size_of_train_test)
@@ -56,5 +57,6 @@ if __name__ == "__main__":
     ratings = pd.read_csv("../project_s329326_s331738/data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
 
-    id_train, Z2_train_ratings = build_train_set(Z2, 60000)
+    id_train, Z2_train_ratings = build_train_set(Z2, 0.6)
     id_test, Z2_test_ratings = build_test_set(Z2, id_train)
+    print(len(id_train))

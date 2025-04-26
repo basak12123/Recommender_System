@@ -133,10 +133,10 @@ if __name__ == "__main__":
     ratings = pd.read_csv("../data/ratings.csv")
     Z2 = reshape_ratings_dataframe(ratings)
 
-    id_train, Z2_train = build_train_set(Z2, 60000)
+    id_train, Z2_train = build_train_set(Z2, 0.8)
     id_test, Z2_test = build_test_set(Z2, id_train)
 
-    model = my_SGD(lmb=0.0, lr=0.01, r_components=6, n_epochs=200, optimizer_name="SGD")
+    model = my_SGD(lmb=0.0, lr=0.01, n_components=6, n_epochs=200, optimizer_name="SGD")
     # optimazer SGD good if lr smaller
     model.fit(Z2, id_train, verbose=True)
     print(model.get_recovered_Z())
