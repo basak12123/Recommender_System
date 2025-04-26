@@ -1,6 +1,7 @@
 import torch
 import pandas as pd
 import numpy as np
+from sklearn.base import BaseEstimator
 from torch.utils.data import DataLoader, TensorDataset
 from helper_functions import reshape_ratings_dataframe
 from tools.build_train_matrix import build_train_set, build_test_set
@@ -12,7 +13,7 @@ class my_SGD:
 
     """
 
-    def __init__(self, lr=0.06, lmb=0, r_components=5, n_epochs=500, optimizer_name="Adam", device=None):
+    def __init__(self, lr=0.01, lmb=0, r_components=5, n_epochs=500, batch_size=1024, optimizer_name="Adam", device=None):
         """
         Initializing of SGD model where chosen optimizer minimizes function:
         $\sum_{i,j: z[i, j] \neq NaN} (z[i, j] - W_i^T * H_j) ** 2 + \lmb * (||w_i||^2 + ||h_j||^2)$
@@ -21,6 +22,7 @@ class my_SGD:
         :param lmb: ridge penalty rate, if lmb=0 then sum of squared errors is minimize
         :param n_epochs: number of repeats
         :param optimizer_name:
+        :param batch_size:
         :param device:
         """
 
@@ -29,13 +31,14 @@ class my_SGD:
         self.r = r_components
         self.n_epochs = n_epochs
         self.optimizer_name = optimizer_name
+        self.batch_size = batch_size
         self.W_r = None
         self.H_r = None
         self.recovered_Z = None
         self.device = device if device is not None else torch.device("cpu")
         self.loss_list = []
 
-    def fit(self, Z, id_train_set, batch_size=1024, verbose=True):
+    def fit(self, Z, id_train_set, verbose=False):
         self.loss_list = []
 
         Z_tensor = torch.tensor(np.array(Z), dtype=torch.float, device=self.device)
@@ -51,7 +54,7 @@ class my_SGD:
 
         # Dataset + DataLoader
         train_dataset = TensorDataset(train_rows_tensor, train_cols_tensor, Z_train)
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
 
         if self.optimizer_name.lower() == "sgd":
             optimizer = torch.optim.SGD([W_r, H_r], lr=self.lr)
@@ -125,6 +128,32 @@ class my_SGD:
         return np.sqrt(np.mean((predictions - ratings_for_test_set) ** 2))
 
 
+class mySGD_sklearnCompatible(BaseEstimator):
+    def __init__(self, lr=0.06, lmb=0, r_components=5, n_epochs=200, batch_size=1024, optimizer_name="Adam", device=None):
+
+        self.lr = lr
+        self.lmb = lmb
+        self.r = r_components
+        self.n_epochs = n_epochs
+        self.optimizer_name = optimizer_name
+        self.batch_size = batch_size
+        self.model_ = None
+
+    def fit(self, Z_train, id_train_set):
+        self.model_ = my_SGD(
+            lr=self.lr,
+            lmb=self.lmb,
+            r_components=self.r,
+            n_epochs=self.n_epochs,
+            optimizer_name=self.optimizer_name
+        )
+        self.model_.fit(Z_train, id_train_set)
+
+    def score(self, ratings_for_test_set, id_test_set):
+        RMSE = self.model_.compute_RMSE_on_test(self, id_test_set, ratings_for_test_set)
+        return -RMSE
+
+
 if __name__ == "__main__":
     # print(os.getcwd()) # show where you are to better write file track
 
@@ -135,7 +164,8 @@ if __name__ == "__main__":
     id_train, Z2_train = build_train_set(Z2, 60000)
     id_test, Z2_test = build_test_set(Z2, id_train)
 
-    model = my_SGD(lmb=0.0, r_components=6, n_epochs=100)
-    model.fit(Z2, id_train)
+    model = my_SGD(lmb=0.0, lr=0.01, r_components=6, n_epochs=200, optimizer_name="SGD")
+    # optimazer SGD good if lr smaller
+    model.fit(Z2, id_train, verbose=True)
     print(model.get_recovered_Z())
     print(model.compute_RMSE_on_test(id_test, Z2_test))
