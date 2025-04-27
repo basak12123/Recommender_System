@@ -24,7 +24,7 @@ id_user_movies = get_id_of_full_data(ratings)
 
 # PARAM GRID
 SGD_param_grid = {
-    'n_components': [5, 10, 50, 100, 200],
+    'n_components': [i for i in range(1, 5)],
     'lmb': [0.0]
 }
 
@@ -134,17 +134,25 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
     return df_Stats_AvgRMSE, df_Stats_FoldsRMSE
 
 
-
-
 # SGD :
 
-# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(Z_full, kf, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd")
+# # with zeros:
+# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_0")
 # print(Stats_AvgRMSE_SGD)
 # print(Stats_FoldsRMSE_SGD)
 #
-# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD.csv", index=False)
-# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD.csv", index=False)
+# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_2.csv", index=False)
+# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_2.csv", index=False)
+
+# with mean:
+
+# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_means")
+# print(Stats_AvgRMSE_SGD)
+# print(Stats_FoldsRMSE_SGD)
 #
+# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_mean.csv", index=False)
+# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=False)
+
 # # SVD2 :
 #
 # Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="svd2")
@@ -185,9 +193,9 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 # NMF:
 
-# Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="nmf")
-# print(Stats_AvgRMSE_NMF)
-# print(Stats_AvgRMSE_NMF)
-#
-# Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF.csv", index=False)
-# Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF.csv", index=False)
+Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="nmf", imputing_style="fill_with_0")
+print(Stats_AvgRMSE_NMF)
+print(Stats_AvgRMSE_NMF)
+
+Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF.csv", index=False)
+Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF.csv", index=False)
