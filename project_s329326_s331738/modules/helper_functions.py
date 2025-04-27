@@ -65,17 +65,17 @@ def imputate_data_with_mean(df):
 
 def imputate_data_with_mean_of_user(df):
     """
-    To think how impute by mean: impute missing values mean of rating each user
-    or mean of rating each movie - now is by each movie
+    Impute missing values by using the mean rating of each user (row).
+    If a user has no ratings, use the global mean of all ratings.
 
     :param df: DataFrame object which was transformed by reshape_ratings_dataframe function
-    :return: DataFrame object without missing data which were replaced by mean of each movie
+    :return: DataFrame object without missing data, with missing ratings replaced by the mean of each user
     """
-    df_users_mean = (2 * df.mean()).round() / 2
+    df_users_mean = (2 * df.mean(axis=1)).round() / 2
     global_mean = (2 * df.stack().mean()).round() / 2
     df_users_mean = df_users_mean.fillna(global_mean)
 
-    return df.fillna(df_users_mean)
+    return df.T.fillna(df_users_mean).T
 
 
 def rmse(y_true, y_pred):
