@@ -4,7 +4,7 @@ import pandas as pd
 
 
 class my_NMF(NMF):
-    def __init__(self, n_components=10, init='random', max_iter=100, random_state=42):
+    def __init__(self, n_components=10, init='random', max_iter=200, random_state=42):
         """
                 Initialize the NMF model.
 
