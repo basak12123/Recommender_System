@@ -3,19 +3,18 @@ import random
 import pandas as pd
 import numpy as np
 import os
-from .helper_functions import reshape_ratings_dataframe
+# from .helper_functions import reshape_ratings_dataframe
 
 
-def get_id_of_full_data(df):
+def get_id_of_full_data(rating_df):
     """
     Get ids of those pairs (user_id, movie_id) from reshaped data frame which
     are not censored data.
     :param df: DataFrame object which was transformed by reshape_ratings_dataframe function
     :return: tuple of arrays with user_id and movie_id coordinates where the data is full
     """
-    array_sample = np.array(df)
-    notnulls = ~np.isnan(array_sample)
-    return np.where(notnulls)
+    id_user_movie = rating_df[['userId', 'movieId']]
+    return id_user_movie
 
 
 def build_train_set(df, perc_of_data_to_train):
@@ -25,29 +24,27 @@ def build_train_set(df, perc_of_data_to_train):
     :param perc_of_data_to_train: fraction of observations in train set
     :return: tuples with pairs (user_id, movie_id) and ratings correspond to those pairs
     """
-    notnull_row_idx, notnull_col_idx = get_id_of_full_data(df)
-    size_of_train_test = int(np.floor(perc_of_data_to_train * len(notnull_row_idx)))
+    id_user_movie = get_id_of_full_data(df)
+    size_of_train_test = int(np.floor(perc_of_data_to_train * id_user_movie.shape[0]))
 
-    id_not_nulls = [i for i in zip(notnull_row_idx, notnull_col_idx)]
-    id_trains = random.choices(id_not_nulls, k=size_of_train_test)
+    train_df = df.sample(n=size_of_train_test)
 
-    return id_trains, np.array(df)[tuple(zip(*id_trains))]
+    return train_df[['userId', 'movieId', 'rating']]
 
 
-def build_test_set(df, id_train):
+def build_test_set(df, train_df):
     """
     Build test set. Use this function after using build_train_set.
     :param df: DataFrame object which was transformed by reshape_ratings_dataframe function (NOT IMPUTED)
-    :param id_train: Pairs (user_id, movie_id) which are in train set (first component of tuple from
+    :param train_df: Pairs (user_id, movie_id) which are in train set (first component of tuple from
     function build_train_set)
     :return: tuples with pairs (user_id, movie_id) and ratings correspond to those pairs
     """
-    notnull_row_idx, notnull_col_idx = get_id_of_full_data(df)
+    df_test = df.merge(train_df[['userId', 'movieId']], on=['userId', 'movieId'], how='left', indicator=True)
+    df_test = df_test[df_test['_merge'] == 'left_only']
+    df_test = df_test[['userId', 'movieId', 'rating']]
 
-    id_not_nulls = [i for i in zip(notnull_row_idx, notnull_col_idx)]
-    id_test = list(set(id_not_nulls) - set(id_train))
-
-    return id_test, np.array(df)[tuple(zip(*id_test))]
+    return df_test
 
 
 if __name__ == "__main__":
@@ -55,8 +52,7 @@ if __name__ == "__main__":
 
     # Example of usage
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2 = reshape_ratings_dataframe(ratings)
+    #Z2 = reshape_ratings_dataframe(ratings)
 
-    id_train, Z2_train_ratings = build_train_set(Z2, 0.6)
-    id_test, Z2_test_ratings = build_test_set(Z2, id_train)
-    print(len(id_train))
+    Z_train = build_train_set(ratings, 0.6)
+    print(build_test_set(ratings, Z_train))

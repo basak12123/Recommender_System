@@ -28,6 +28,20 @@ def reshape_ratings_dataframe(ratings_file):
     return reshape_rating_df, user_map, movie_map
 
 
+def map_ids(df, user_map, movie_map):
+    ids = []
+    for row in df.itertuples():
+        u = row.userId
+        m = row.movieId
+
+        i = user_map[u]
+        j = movie_map[m]
+        ids.append((i, j))
+
+    return ids
+
+
+
 def imputate_data_with_0(df):
     """
     Imputation missing data by replace them with 0.
@@ -57,7 +71,7 @@ def rmse(y_true, y_pred):
 # check
 if __name__ == "__main__":
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2 = reshape_ratings_dataframe("../data/ratings.csv")
+    Z2, usermap, moviemap = reshape_ratings_dataframe("../data/ratings.csv")
 
     Z2_0 = imputate_data_with_0(Z2)
     Z2_mean = imputate_data_with_mean(Z2)
