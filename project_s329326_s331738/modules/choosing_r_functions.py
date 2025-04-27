@@ -29,7 +29,7 @@ SGD_param_grid = {
 }
 
 param_grid = {
-     'n_components': [5, 6, 7, 8, 9, 10, 20, 30],
+     'n_components': [5, 10, 50, 100, 150, 200],
 }
 
 
@@ -187,12 +187,12 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 # with means by users:
 
-Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_knn")
-print(Stats_AvgRMSE_SVD1)
-print(Stats_FoldsRMSE_SVD1)
-
-Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_knn.csv", index=False)
-Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_knn.csv", index=False)
+# Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_knn")
+# print(Stats_AvgRMSE_SVD1)
+# print(Stats_FoldsRMSE_SVD1)
+#
+# Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_knn.csv", index=False)
+# Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_knn.csv", index=False)
 
 # NMF:
 
@@ -211,3 +211,11 @@ Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_knn.csv", index=
 #
 # Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF_mean.csv", index=False)
 # Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean.csv", index=False)
+
+# with mean user:
+Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="nmf", imputing_style="fill_with_mean_by_users")
+print(Stats_AvgRMSE_NMF)
+print(Stats_FoldsRMSE_NMF)
+
+Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF_mean_user.csv", index=False)
+Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean_user.csv", index=False)
