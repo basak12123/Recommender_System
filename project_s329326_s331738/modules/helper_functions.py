@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.impute import KNNImputer
 
 
 def reshape_ratings_dataframe(ratings_df):
@@ -77,6 +78,12 @@ def imputate_data_with_mean_of_user(df):
 
     return df.T.fillna(df_users_mean).T
 
+def imputate_data_with_KNN(df):
+    m = np.array(df)
+    imputer = KNNImputer(n_neighbors=12, weights='distance', metric='nan_euclidean', keep_empty_features=True)
+    M_imputed = imputer.fit_transform(m)
+    return pd.DataFrame(np.round(M_imputed*2)/2)
+
 
 def rmse(y_true, y_pred):
     return np.sqrt(np.mean((y_true - y_pred) ** 2))
@@ -90,5 +97,5 @@ if __name__ == "__main__":
     Z2_0 = imputate_data_with_0(Z2)
     Z2_mean = imputate_data_with_mean(Z2)
     Z2_mean_user = imputate_data_with_mean_of_user(Z2)
-    print(Z2_mean_user)
-
+    Z2_KNN = imputate_data_with_KNN(Z2)
+    print(Z2_KNN)
