@@ -27,6 +27,31 @@ def reshape_ratings_dataframe(ratings_file):
 
     return reshape_rating_df, user_map, movie_map
 
+def reshape_ratings(ratings_df):
+    """
+    Function which reshape the ratings.csv dataframe with 100836 rows and 4 columns
+    on the dataframe with 610 rows (userId) x 9724 columns (movieId).
+
+    The i-th and j-th element of this dataframe is rating
+    from user with id equals i about movie with id equals j.
+
+    :param ratings_file: DataFrame object from ratings.csv file
+    :return: DataFrame object with Nans for movies which are not rated by specific user
+    """
+    print(ratings_df)
+    ratings_df = pd.DataFrame(ratings_df, columns=['userId','movieId','rating'])
+    # Extract unique users and movies
+    unique_users = ratings_df["userId"].unique()
+    unique_movies = ratings_df["movieId"].unique()
+
+    # Create mappings: userId -> row index, movieId -> column index
+    user_map = {uid: i for i, uid in enumerate(sorted(unique_users))}
+    movie_map = {mid: j for j, mid in enumerate(sorted(unique_movies))}
+
+    reshape_rating_df = ratings_df.pivot(index='userId', columns='movieId', values='rating')
+
+    return reshape_rating_df, user_map, movie_map
+
 
 def map_ids(df, user_map, movie_map):
     ids = []

@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 import numpy as np
 import pandas as pd
 from project_s329326_s331738.modules.build_train_matrix import get_id_of_full_data
-from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
+from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids, reshape_ratings
 
 # DATA
 ratings = pd.read_csv("../data/ratings.csv")
@@ -26,7 +26,7 @@ SGD_param_grid = {
 }
 
 param_grid = {
-     'n_components': [5, 10, 50, 100, 200],
+     'n_components': [5, 10, 50, 100, 200, 250, 300, 400, 500, 600],
 }
 
 num_of_kfolds = 5
@@ -36,6 +36,7 @@ kf = KFold(n_splits=num_of_kfolds, shuffle=True, random_state=42)
 def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
 
     ParamGridObj = ParameterGrid(grid_param)
+    n, d = Z.shape
     if type_of_model.lower() == "sgd":
         Stats_AvgRMSE = np.zeros((len(ParamGridObj), 3))
         Stats_FoldsRMSE = np.zeros((len(ParamGridObj), num_of_kfolds + 2))
@@ -56,8 +57,11 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
             id_test_fold = id_array[test_index.astype(int)].tolist()
 
             id_test_user, id_test_movie = tuple(zip(*id_test_fold))
+            id_train_user, id_train_movie = tuple(zip(*id_train_fold))
 
             ratings_test_fold = Z_np[id_test_user, id_test_movie]
+            ratings_train_fold, u_mp, id_mp = reshape_ratings(pd.DataFrame(Z_np[id_train_user, id_train_movie]))
+            ratings_train_fold = imputate_data_with_0(ratings_train_fold)
 
             if type_of_model.lower() == "sgd":
                 model = my_SGD(
@@ -73,7 +77,7 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
 
             elif type_of_model.lower() == "svd1":
                 model = my_SVD1(n_components=params['n_components'])
-                model.fit(Z)
+                model.fit(ratings_train_fold)
                 model.get_recovered_Z()
 
                 preds = model.predict(id_test_fold)
@@ -92,7 +96,7 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
 
                 preds = model.predict(id_test_fold)
 
-            rmse = np.sqrt(mean_squared_error(ratings_test_fold, preds))
+            rmse = np.sqrt(mean_squared_error(ratings_test_fold.flatten(), preds))
 
             fold_scores.append(rmse)
 
@@ -122,21 +126,21 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
 
 # SGD :
 
-Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(Z_full, kf, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd")
-print(Stats_AvgRMSE_SGD)
-print(Stats_FoldsRMSE_SGD)
-
-Stats_AvgRMSE_SGD.to_csv("../data/grid_search_SGD_AvgRMSE_SGD.csv", index=False)
-Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_SGD_FoldsRMSE_SGD.csv", index=False)
-
-# SVD2 :
-
-Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="svd2")
-print(Stats_AvgRMSE_SVD2)
-print(Stats_FoldsRMSE_SVD2)
-
-Stats_AvgRMSE_SVD2.to_csv("../data/grid_search_SGD_AvgRMSE_SVD2.csv", index=False)
-Stats_FoldsRMSE_SVD2.to_csv("../data/grid_search_SGD_FoldsRMSE_SVD2.csv", index=False)
+# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(Z_full, kf, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd")
+# print(Stats_AvgRMSE_SGD)
+# print(Stats_FoldsRMSE_SGD)
+#
+# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD.csv", index=False)
+# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD.csv", index=False)
+#
+# # SVD2 :
+#
+# Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="svd2")
+# print(Stats_AvgRMSE_SVD2)
+# print(Stats_FoldsRMSE_SVD2)
+#
+# Stats_AvgRMSE_SVD2.to_csv("../data/grid_search_AvgRMSE_SVD2.csv", index=False)
+# Stats_FoldsRMSE_SVD2.to_csv("../data/grid_search_FoldsRMSE_SVD2.csv", index=False)
 
 # SVD1 :
 
@@ -144,14 +148,14 @@ Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(Z_imputed0, kf, param_gr
 print(Stats_AvgRMSE_SVD1)
 print(Stats_AvgRMSE_SVD1)
 
-Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_SGD_AvgRMSE_SVD1.csv", index=False)
-Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_SGD_FoldsRMSE_SVD1.csv", index=False)
+Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1.csv", index=False)
+Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1.csv", index=False)
 
 # NMF:
 
-Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="nmf")
-print(Stats_AvgRMSE_NMF)
-print(Stats_AvgRMSE_NMF)
-
-Stats_AvgRMSE_NMF.to_csv("../data/grid_search_SGD_AvgRMSE_NMF.csv", index=False)
-Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_SGD_FoldsRMSE_NMF.csv", index=False)
+# Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="nmf")
+# print(Stats_AvgRMSE_NMF)
+# print(Stats_AvgRMSE_NMF)
+#
+# Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF.csv", index=False)
+# Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF.csv", index=False)
