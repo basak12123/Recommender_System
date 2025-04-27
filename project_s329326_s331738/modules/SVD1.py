@@ -57,29 +57,33 @@ class my_SVD1(TruncatedSVD):
 
 
 if __name__ == "__main__":
-    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
-    from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set
+    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
+    from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set, convert_train_set_to_good_shape
     from helper_functions import rmse
 
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2_nt = reshape_ratings_dataframe(ratings)
-    Z2 = imputate_data_with_0(Z2_nt)
 
-    idx_train, rt_train = build_train_set(Z2_nt, 60000)
-    idx_test, rt_test = build_test_set(Z2_nt, idx_train)
+    rt_train = build_train_set(ratings, 0.6)
+    rt_test = build_test_set(ratings, rt_train)
+
+    Z2_nt, usermap, moviemap = convert_train_set_to_good_shape(rt_train, rt_test)
+
+    Z2_nt_imp = imputate_data_with_0(Z2_nt)
+    idx_test = map_ids(rt_test, usermap, moviemap)
+
+    print(np.array(Z2_nt)[tuple(zip(*idx_test))])
 
     model = my_SVD1(n_components=250, random_state=42)
-    model.fit(Z2)
+    model.fit(Z2_nt_imp)
     model.get_recovered_Z()
 
     prediction = model.predict(idx_test)
-    print(prediction)
 
-    print(rmse(prediction, rt_test))
+    print(rmse(prediction, rt_test['rating']))
 
     for i in [10, 50, 100, 150, 200, 250, 300, 350, 400]:
         ml = my_SVD1(n_components=i, random_state=42)
-        ml.fit(Z2)
+        ml.fit(Z2_nt_imp)
         ml.get_recovered_Z()
         prediction = ml.predict(idx_test)
-        print(rmse(prediction, rt_test))
+        print(rmse(prediction, rt_test['rating']))

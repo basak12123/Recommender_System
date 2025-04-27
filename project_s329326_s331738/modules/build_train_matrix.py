@@ -3,7 +3,7 @@ import random
 import pandas as pd
 import numpy as np
 import os
-# from .helper_functions import reshape_ratings_dataframe
+from .helper_functions import reshape_ratings_dataframe
 
 
 def get_id_of_full_data(rating_df):
@@ -45,6 +45,16 @@ def build_test_set(df, train_df):
     df_test = df_test[['userId', 'movieId', 'rating']]
 
     return df_test
+
+
+def convert_train_set_to_good_shape(train_df, test_df):
+    test_df_unvisible = test_df.copy()
+    test_df_unvisible['rating'] = np.NaN
+
+    train_set_good_shape = pd.concat([train_df, test_df_unvisible], ignore_index=True, sort=False)
+    Z_train_pivot, usermap_train, moviemap_train = reshape_ratings_dataframe(train_set_good_shape)
+
+    return Z_train_pivot, usermap_train, moviemap_train
 
 
 if __name__ == "__main__":

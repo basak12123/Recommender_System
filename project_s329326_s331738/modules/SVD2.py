@@ -74,16 +74,24 @@ class my_SVD2(TruncatedSVD):
 
 if __name__ == "__main__":
     from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
-    from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set
+    from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set, convert_train_set_to_good_shape
 
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2_full, usermap, moviemap = reshape_ratings_dataframe("../data/ratings.csv")
-    Z2_imputed = imputate_data_with_0(Z2_full)
 
-    Z2_train = build_train_set(ratings, 0.6)
-    id_train = map_ids(Z2_train, usermap, moviemap)
+    rt_train = build_train_set(ratings, 0.6)
+    rt_test = build_test_set(ratings, rt_train)
+
+    Z2_nt, usermap, moviemap = convert_train_set_to_good_shape(rt_train, rt_test)
+
+    idx_test = map_ids(rt_test, usermap, moviemap)
+    id_train = map_ids(rt_train, usermap, moviemap)
+
+    # print(np.array(Z2_nt)[tuple(zip(*idx_test))])
+    Z2_nt_imp = imputate_data_with_0(Z2_nt)
+
+    id_test_user, id_test_movie = tuple(zip(*idx_test))
 
     model = my_SVD2(n_components=10, n_epochs=100, random_state=42)
-    model.fit(Z2_imputed, id_train)
+    model.fit(Z2_nt_imp, id_train)
     print(model.get_recovered_Z())
-    print(model.predict([1, 3, 5], [3, 4, 1]))
+    print(model.predict(id_test_user, id_test_movie))

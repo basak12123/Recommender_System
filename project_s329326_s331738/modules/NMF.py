@@ -2,6 +2,7 @@ from sklearn.decomposition import NMF
 import numpy as np
 import pandas as pd
 
+
 class my_NMF(NMF):
     def __init__(self, n_components=10, init='random', max_iter=100, random_state=42):
         """
@@ -56,22 +57,22 @@ class my_NMF(NMF):
 
 if __name__ == "__main__":
     from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
-    from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set
+    from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set, convert_train_set_to_good_shape
     from helper_functions import rmse
 
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2_nt, usermap, moviemap = reshape_ratings_dataframe("../data/ratings.csv")
-    Z2 = imputate_data_with_0(Z2_nt)
 
     rt_train = build_train_set(ratings, 0.6)
     rt_test = build_test_set(ratings, rt_train)
 
+    Z2_nt, usermap, moviemap = convert_train_set_to_good_shape(rt_train, rt_test)
+
+    Z2_nt_imp = imputate_data_with_0(Z2_nt)
     idx_test = map_ids(rt_test, usermap, moviemap)
 
     model = my_NMF(n_components=1, max_iter=20, random_state=42)
-    model.fit(Z2)
+    model.fit(Z2_nt_imp)
     model.get_recovered_Z()
-
     prediction = model.predict(idx_test)
     print(prediction)
 
