@@ -19,7 +19,7 @@ class my_SVD2(TruncatedSVD):
         self.recovered_Z = None
         self.loss_list = []
 
-    def fit(self, Z, id_train_set, verbose=True):
+    def fit(self, Z, id_train_set, verbose=False):
         """
         Fit the TruncatedSVD model to the input matrix Z, and compute W and H.
 
@@ -72,30 +72,19 @@ class my_SVD2(TruncatedSVD):
         ids = zip(user_index, movie_index)
         return self.recovered_Z[tuple(zip(*ids))]
 
-    def compute_RMSE_on_test(self,  id_test_set, ratings_for_test_set):
-
-        test_users_id, test_movies_id = tuple(zip(*id_test_set))
-        predictions = self.predict(test_users_id, test_movies_id)
-        print(predictions)
-
-        return np.sqrt(np.mean((predictions - ratings_for_test_set) ** 2))
-
 
 if __name__ == "__main__":
-    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
+    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
     from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set
 
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2 = reshape_ratings_dataframe(ratings)
+    Z2_full, usermap, moviemap = reshape_ratings_dataframe("../data/ratings.csv")
+    Z2_imputed = imputate_data_with_0(Z2_full)
 
-    id_train, Z2_train = build_train_set(Z2, 0.6)
-    id_test, Z2_test = build_test_set(Z2, id_train)
+    Z2_train = build_train_set(ratings, 0.6)
+    id_train = map_ids(Z2_train, usermap, moviemap)
 
-    Z2 = imputate_data_with_0(Z2)
-    print(Z2)
-
-    model = my_SVD2(n_components=250, n_epochs=500, random_state=42)
-    model.fit(Z2, id_train)
+    model = my_SVD2(n_components=10, n_epochs=100, random_state=42)
+    model.fit(Z2_imputed, id_train)
     print(model.get_recovered_Z())
     print(model.predict([1, 3, 5], [3, 4, 1]))
-    print(model.compute_RMSE_on_test(id_test, Z2_test))

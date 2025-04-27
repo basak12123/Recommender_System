@@ -117,27 +117,22 @@ class my_SGD:
         ids = zip(user_index, item_index)
         return self.recovered_Z[tuple(zip(*ids))]
 
-    def compute_RMSE_on_test(self, id_test_set, ratings_for_test_set):
-        test_users_id, test_movies_id = tuple(zip(*id_test_set))
-        predictions = self.predict(test_users_id, test_movies_id)
-
-        return np.sqrt(np.mean((predictions - ratings_for_test_set) ** 2))
-
 
 if __name__ == "__main__":
-    from helper_functions import reshape_ratings_dataframe
-    from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set
-    # print(os.getcwd()) # show where you are to better write file track
+    from helper_functions import reshape_ratings_dataframe, map_ids
+    from project_s329326_s331738.modules.build_train_matrix import build_train_set
 
     # Example of usage
-    ratings = pd.read_csv("../data/ratings.csv")
-    Z2, usermap, moviemap = reshape_ratings_dataframe(ratings)
+    ratings_file = "../data/ratings.csv"
+    Z2, usermap, moviemap = reshape_ratings_dataframe(ratings_file)
 
-    id_train, Z2_train = build_train_set(Z2, 0.8)
-    id_test, Z2_test = build_test_set(Z2, id_train)
+    ratings = pd.read_csv(ratings_file)
+    Z2_train = build_train_set(ratings, 0.8)
+    id_train = map_ids(Z2_train, usermap, moviemap)
 
-    model = my_SGD(lmb=0.0, lr=0.01, n_components=6, n_epochs=200, optimizer_name="SGD")
+    model = my_SGD(lmb=0.0, lr=0.01, n_components=30, n_epochs=10, optimizer_name="Adam")
     # optimazer SGD good if lr smaller
     model.fit(Z2, id_train, verbose=True)
-    print(model.get_recovered_Z())
-    print(model.compute_RMSE_on_test(id_test, Z2_test))
+    mapped_u, mapped_m = zip(*id_train)
+    model.get_recovered_Z()
+    print(model.predict(mapped_u, mapped_m))

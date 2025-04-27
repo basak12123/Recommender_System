@@ -55,22 +55,24 @@ class my_NMF(NMF):
 
 
 if __name__ == "__main__":
-    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0
+    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
     from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set
     from helper_functions import rmse
 
     ratings = pd.read_csv("../data/ratings.csv")
-    Z2_nt = reshape_ratings_dataframe(ratings)
+    Z2_nt, usermap, moviemap = reshape_ratings_dataframe("../data/ratings.csv")
     Z2 = imputate_data_with_0(Z2_nt)
 
-    idx_train, rt_train = build_train_set(Z2_nt, 60000)
-    idx_test, rt_test = build_test_set(Z2_nt, idx_train)
+    rt_train = build_train_set(ratings, 0.6)
+    rt_test = build_test_set(ratings, rt_train)
 
-    model = my_NMF(n_components=250, max_iter=200, random_state=42)
+    idx_test = map_ids(rt_test, usermap, moviemap)
+
+    model = my_NMF(n_components=1, max_iter=20, random_state=42)
     model.fit(Z2)
     model.get_recovered_Z()
 
     prediction = model.predict(idx_test)
     print(prediction)
 
-    print(rmse(prediction, rt_test))
+    print(rmse(prediction, rt_test['rating']))
