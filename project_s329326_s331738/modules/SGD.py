@@ -10,7 +10,7 @@ class my_SGD:
 
     """
 
-    def __init__(self, lr=0.01, lmb=0, n_components=5, n_epochs=200, batch_size=1024, optimizer_name="Adam",
+    def __init__(self, lr=0.01, lmb=0, n_components=5, n_epochs=100, batch_size=1024, optimizer_name="Adam",
                  device=None):
         """
         Initializing of SGD model where chosen optimizer minimizes function:

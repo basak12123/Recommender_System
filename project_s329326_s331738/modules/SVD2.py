@@ -5,7 +5,7 @@ import pandas as pd
 
 class my_SVD2(TruncatedSVD):
 
-    def __init__(self, n_components=5, n_epochs=200, random_state=42):
+    def __init__(self, n_components=5, n_epochs=100, random_state=42):
         """
         Initialize the SVD1 model.
 
