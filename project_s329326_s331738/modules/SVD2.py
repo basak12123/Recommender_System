@@ -47,7 +47,6 @@ class my_SVD2(TruncatedSVD):
 
             if epoch > 1 and abs(loss - self.loss_list[-1]) < 0.001:
                 print(f"Number of performed epochs due to small error changes: {epoch}.")
-                print(loss)
                 break
 
             if epoch % 10 == 0:
