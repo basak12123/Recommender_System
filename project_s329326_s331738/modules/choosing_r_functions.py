@@ -167,12 +167,21 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 # with means:
 
-Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_mean")
-print(Stats_AvgRMSE_SVD1)
-print(Stats_FoldsRMSE_SVD1)
+# Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_mean")
+# print(Stats_AvgRMSE_SVD1)
+# print(Stats_FoldsRMSE_SVD1)
+#
+# Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_mean.csv", index=False)
+# Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_mean.csv", index=False)
 
-Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_mean.csv", index=False)
-Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_mean.csv", index=False)
+# with means by users:
+
+# Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_mean_by_users")
+# print(Stats_AvgRMSE_SVD1)
+# print(Stats_FoldsRMSE_SVD1)
+#
+# Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_mean_user.csv", index=False)
+# Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_mean_user.csv", index=False)
 
 # NMF:
 
