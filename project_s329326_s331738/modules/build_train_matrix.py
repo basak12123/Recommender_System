@@ -47,6 +47,21 @@ def build_test_set(df, train_df):
     return df_test
 
 
+def split_train_test(df, num_of_splits):
+    df_copy = df.copy()
+    size_of_test = df.shape[0] / num_of_splits
+
+    sets = []
+
+    for i in range(num_of_splits - 1):
+        frac_of_test = size_of_test / df_copy.shape[0]
+        tr_set = build_train_set(df_copy, frac_of_test)
+        sets.append(tr_set)
+        df_copy = build_test_set(df_copy, tr_set)
+
+    sets.append(df_copy)
+    return sets
+
 def convert_train_set_to_good_shape(train_df, test_df):
     test_df_unvisible = test_df.copy()
     test_df_unvisible['rating'] = np.NaN

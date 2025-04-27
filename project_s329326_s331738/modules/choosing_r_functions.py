@@ -6,15 +6,18 @@ from sklearn.model_selection import KFold, ParameterGrid
 from sklearn.metrics import mean_squared_error
 import numpy as np
 import pandas as pd
-from project_s329326_s331738.modules.build_train_matrix import get_id_of_full_data
-from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids, reshape_ratings
+from project_s329326_s331738.modules.build_train_matrix import (get_id_of_full_data, split_train_test,
+                                                                convert_train_set_to_good_shape, build_test_set)
+from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
 
 # DATA
 ratings = pd.read_csv("../data/ratings.csv")
-Z_full, usermap, moviemap = reshape_ratings_dataframe("../data/ratings.csv")
+Z_full, usermap, moviemap = reshape_ratings_dataframe(ratings)
+
 
 Z_imputed0 = imputate_data_with_0(Z_full)
 
+ratings = pd.read_csv("../data/ratings.csv")
 
 # ALL FULL DATA
 id_user_movies = get_id_of_full_data(ratings)
@@ -26,17 +29,16 @@ SGD_param_grid = {
 }
 
 param_grid = {
-     'n_components': [5, 10, 50, 100, 200, 250, 300, 400, 500, 600],
+     'n_components': [5, 10, 50, 100, 150],
 }
 
-num_of_kfolds = 5
-kf = KFold(n_splits=num_of_kfolds, shuffle=True, random_state=42)
 
+def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD"):
 
-def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
+    kf = split_train_test(ratings, num_of_kfolds)
 
     ParamGridObj = ParameterGrid(grid_param)
-    n, d = Z.shape
+
     if type_of_model.lower() == "sgd":
         Stats_AvgRMSE = np.zeros((len(ParamGridObj), 3))
         Stats_FoldsRMSE = np.zeros((len(ParamGridObj), num_of_kfolds + 2))
@@ -49,19 +51,19 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
         print(f"Trying parameters: {params}")
 
         fold_scores = []
-        id_array = np.array(map_ids(id_user_movies, usermap, moviemap))
-        Z_np = np.array(Z)
 
-        for train_index, test_index in kf.split(id_array):
-            id_train_fold = id_array[train_index.astype(int)].tolist()
-            id_test_fold = id_array[test_index.astype(int)].tolist()
+        for j in range(num_of_kfolds):
 
-            id_test_user, id_test_movie = tuple(zip(*id_test_fold))
-            id_train_user, id_train_movie = tuple(zip(*id_train_fold))
+            test_set = kf[j]
+            train_set = build_test_set(ratings, test_set)
 
-            ratings_test_fold = Z_np[id_test_user, id_test_movie]
-            ratings_train_fold, u_mp, id_mp = reshape_ratings(pd.DataFrame(Z_np[id_train_user, id_train_movie]))
-            ratings_train_fold = imputate_data_with_0(ratings_train_fold)
+            Z_train_gd, usermap, moviemap = convert_train_set_to_good_shape(train_set, test_set)
+            Z_train_gd_imputeted = imputate_data_with_0(Z_train_gd)
+
+            idx_test = map_ids(test_set, usermap, moviemap)
+            idx_train = map_ids(train_set, usermap, moviemap)
+
+            idx_test_user, idx_test_movie = tuple(zip(*idx_test))
 
             if type_of_model.lower() == "sgd":
                 model = my_SGD(
@@ -70,33 +72,33 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
                     optimizer_name="Adam",
                     n_epochs=100
                 )
-                model.fit(Z, id_train_fold, verbose=False)
+                model.fit(Z_train_gd, idx_train, verbose=False)
                 model.get_recovered_Z()
 
-                preds = model.predict(list(id_test_user), list(id_test_movie))
+                preds = model.predict(list(idx_test_user), list(idx_test_movie))
 
             elif type_of_model.lower() == "svd1":
                 model = my_SVD1(n_components=params['n_components'])
-                model.fit(ratings_train_fold)
+                model.fit(Z_train_gd_imputeted)
                 model.get_recovered_Z()
 
-                preds = model.predict(id_test_fold)
+                preds = model.predict(idx_test)
 
             elif type_of_model.lower() == "svd2":
                 model = my_SVD2(n_components=params['n_components'])
-                model.fit(Z, id_train_fold, verbose=False)
+                model.fit(Z_train_gd_imputeted, idx_train, verbose=False)
                 model.get_recovered_Z()
 
-                preds = model.predict(list(id_test_user), list(id_test_movie))
+                preds = model.predict(list(idx_test_user), list(idx_test_movie))
 
             elif type_of_model.lower() == "nmf":
                 model = my_NMF(n_components=params['n_components'])
-                model.fit(Z)
+                model.fit(Z_train_gd_imputeted)
                 model.get_recovered_Z()
 
-                preds = model.predict(id_test_fold)
+                preds = model.predict(idx_test)
 
-            rmse = np.sqrt(mean_squared_error(ratings_test_fold.flatten(), preds))
+            rmse = np.sqrt(mean_squared_error(test_set['rating'], preds))
 
             fold_scores.append(rmse)
 
@@ -124,6 +126,7 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
     return df_Stats_AvgRMSE, df_Stats_FoldsRMSE
 
 
+
 # SGD :
 
 # Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(Z_full, kf, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd")
@@ -144,7 +147,7 @@ def GridSearchCV(Z, kf, grid_param, num_of_kfolds, type_of_model="SGD"):
 
 # SVD1 :
 
-Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="svd1")
+Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1")
 print(Stats_AvgRMSE_SVD1)
 print(Stats_AvgRMSE_SVD1)
 
