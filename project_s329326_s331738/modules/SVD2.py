@@ -46,7 +46,7 @@ class my_SVD2(TruncatedSVD):
             # Update next step
             Z_previous = Z_next
 
-            if epoch > 1 and abs(loss - self.loss_list[-1]) < 0.001:
+            if epoch > 1 and abs(loss - self.loss_list[-1]) < 100:
                 print(f"Number of performed epochs due to small error changes: {epoch}.")
                 break
 
@@ -55,6 +55,8 @@ class my_SVD2(TruncatedSVD):
                     print(f"Epoch {epoch}: loss = {loss:.4f}")
 
             self.loss_list.append(loss)
+
+
 
         self.W_r = W_r
         self.H_r = H_r
@@ -75,7 +77,7 @@ class my_SVD2(TruncatedSVD):
 
 
 if __name__ == "__main__":
-    from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, map_ids
+    from helper_functions import reshape_ratings_dataframe, imputate_data_with_mean, map_ids
     from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set, convert_train_set_to_good_shape
 
     ratings = pd.read_csv("../data/ratings.csv")
@@ -89,11 +91,11 @@ if __name__ == "__main__":
     id_train = map_ids(rt_train, usermap, moviemap)
 
     # print(np.array(Z2_nt)[tuple(zip(*idx_test))])
-    Z2_nt_imp = imputate_data_with_0(Z2_nt)
+    Z2_nt_imp = imputate_data_with_mean(Z2_nt)
 
     id_test_user, id_test_movie = tuple(zip(*idx_test))
 
-    model = my_SVD2(n_components=1, n_epochs=500)
+    model = my_SVD2(n_components=4, n_epochs=500)
     model.fit(Z2_nt_imp, id_train, verbose=True)
     print(model.get_recovered_Z())
     print(model.predict(id_test_user, id_test_movie))

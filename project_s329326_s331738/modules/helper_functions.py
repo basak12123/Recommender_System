@@ -88,7 +88,7 @@ def imputate_data_with_KNN(df):
 def imputate_data_with_PCA(df):
     m = np.array(df)
     imputed = pca_imputer(m)
-    return pd.DataFrame(np.round(imputed*2)/2)
+    return pd.DataFrame(np.round(imputed*2)/2).clip(0, 5)
 
 
 def rmse(y_true, y_pred):
