@@ -25,12 +25,12 @@ id_user_movies = get_id_of_full_data(ratings)
 
 # PARAM GRID
 SGD_param_grid = {
-    'n_components': [5, 10, 50, 100, 150, 200],
+    'n_components': [5, 10, 20,  50, 100, 150],
     'lmb': [0.0]
 }
 
 param_grid = {
-     'n_components': [5, 10, 50, 100, 150, 200],
+     'n_components': [5, 10, 15, 20, 25],
 }
 
 
@@ -101,7 +101,7 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
                 preds = model.predict(idx_test)
 
             elif type_of_model.lower() == "svd2":
-                model = my_SVD2(n_components=params['n_components'])
+                model = my_SVD2(n_components=params['n_components'], n_epochs=50)
                 model.fit(Z_train_gd_imputeted, idx_train, verbose=False)
                 model.get_recovered_Z()
 
@@ -158,17 +158,17 @@ Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, n
 print(Stats_AvgRMSE_SGD)
 print(Stats_FoldsRMSE_SGD)
 
-# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_mean.csv", index=False)
-# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=False)
+Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD.csv", index=False)
+Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD.csv", index=False)
 
 # # SVD2 :
 #
-# Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(Z_imputed0, kf, param_grid, num_of_kfolds=5, type_of_model="svd2")
+# Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_mean")
 # print(Stats_AvgRMSE_SVD2)
 # print(Stats_FoldsRMSE_SVD2)
 #
-# Stats_AvgRMSE_SVD2.to_csv("../data/grid_search_AvgRMSE_SVD2.csv", index=False)
-# Stats_FoldsRMSE_SVD2.to_csv("../data/grid_search_FoldsRMSE_SVD2.csv", index=False)
+# Stats_AvgRMSE_SVD2.to_csv("../data/grid_search_AvgRMSE_SVD2_mean_2.csv", index=False)
+# Stats_FoldsRMSE_SVD2.to_csv("../data/grid_search_FoldsRMSE_SVD2_mean_2.csv", index=False)
 
 # SVD1 :
 

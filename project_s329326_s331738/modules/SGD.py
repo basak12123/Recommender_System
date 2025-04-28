@@ -64,7 +64,7 @@ class my_SGD:
             epoch_loss = 0.0
 
             for rows_batch, cols_batch, ratings_batch in train_loader:
-                predictions = torch.sum(W_r[rows_batch] * H_r[:, cols_batch].T, dim=1)
+                predictions = torch.sum(W_r[rows_batch] @ H_r[:, cols_batch], dim=1)
                 error = predictions - ratings_batch
 
                 reg_W = torch.sum(W_r[rows_batch] ** 2)
@@ -124,9 +124,10 @@ if __name__ == "__main__":
 
     # Example of usage
     ratings_file = "../data/ratings.csv"
-    Z2, usermap, moviemap = reshape_ratings_dataframe(ratings_file)
-
     ratings = pd.read_csv(ratings_file)
+    Z2, usermap, moviemap = reshape_ratings_dataframe(ratings)
+
+
     Z2_train = build_train_set(ratings, 0.8)
     id_train = map_ids(Z2_train, usermap, moviemap)
 
@@ -135,4 +136,4 @@ if __name__ == "__main__":
     model.fit(Z2, id_train, verbose=True)
     mapped_u, mapped_m = zip(*id_train)
     model.get_recovered_Z()
-    print(model.predict(mapped_u, mapped_m3))
+    print(model.predict(mapped_u, mapped_m))

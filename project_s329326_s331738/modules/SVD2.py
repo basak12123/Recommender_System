@@ -5,14 +5,14 @@ import pandas as pd
 
 class my_SVD2(TruncatedSVD):
 
-    def __init__(self, n_components=5, n_epochs=100, random_state=42):
+    def __init__(self, n_components=5, n_epochs=100):
         """
         Initialize the SVD1 model.
 
         :param n_components: Number of singular values/components to keep (rank r).
         :param random_state: Random seed.
         """
-        super().__init__(n_components=n_components, random_state=random_state)
+        super().__init__(n_components=n_components)
         self.n_epochs = n_epochs
         self.W_r = None
         self.H_r = None
@@ -26,12 +26,13 @@ class my_SVD2(TruncatedSVD):
         :param Z: np.ndarray, shape (n_users, n_items). Fully populated (no missing entries) rating matrix.
         """
         train_rows, train_cols = zip(*id_train_set)
-        Z_train = np.array(Z)[train_rows, train_cols]
-        Z_previous = np.copy(np.array(Z))
+        Z_np = np.array(Z)
+        Z_train = Z_np[train_rows, train_cols]
+        Z_previous = Z_np.copy()
 
         for epoch in range(self.n_epochs):
             # SVD on previous step Z_previous (from previous step)
-            W_r = super().fit_transform(Z_previous)
+            W_r = self.fit_transform(Z_previous) # TU ZMIENILAM Z super
             H_r = self.components_
             Z_previous = W_r @ H_r
 
@@ -45,14 +46,13 @@ class my_SVD2(TruncatedSVD):
             # Update next step
             Z_previous = Z_next
 
-            if epoch > 1 and epoch % 10 == 0 and abs(loss - self.loss_list[-1]) < 0.001:
+            if epoch > 1 and abs(loss - self.loss_list[-1]) < 0.001:
                 print(f"Number of performed epochs due to small error changes: {epoch}.")
                 break
 
             if epoch > 1 and epoch % 10 == 0:
                 if verbose:
                     print(f"Epoch {epoch}: loss = {loss:.4f}")
-                print(abs(loss - self.loss_list[-1]))
 
             self.loss_list.append(loss)
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     id_test_user, id_test_movie = tuple(zip(*idx_test))
 
-    model = my_SVD2(n_components=10, n_epochs=500, random_state=42)
+    model = my_SVD2(n_components=1, n_epochs=500)
     model.fit(Z2_nt_imp, id_train, verbose=True)
     print(model.get_recovered_Z())
     print(model.predict(id_test_user, id_test_movie))

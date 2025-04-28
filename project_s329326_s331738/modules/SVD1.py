@@ -23,7 +23,6 @@ class my_SVD1(TruncatedSVD):
 
         :param Z: np.ndarray, shape (n_users, n_items). Fully populated (no missing entries) rating matrix.
         """
-        super().fit(Z)
         # Compute W and H
         self.W = self.fit_transform(Z)
         self.H = self.components_
