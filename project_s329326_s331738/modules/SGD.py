@@ -10,7 +10,7 @@ class my_SGD:
 
     """
 
-    def __init__(self, lr=0.01, lmb=0, n_components=5, n_epochs=100, batch_size=1024, optimizer_name="Adam",
+    def __init__(self, lr=0.001, lmb=0, n_components=5, n_epochs=100, batch_size=1024, optimizer_name="Adam",
                  device=None):
         """
         Initializing of SGD model where chosen optimizer minimizes function:
@@ -130,9 +130,9 @@ if __name__ == "__main__":
     Z2_train = build_train_set(ratings, 0.8)
     id_train = map_ids(Z2_train, usermap, moviemap)
 
-    model = my_SGD(lmb=0.0, lr=0.01, n_components=30, n_epochs=10, optimizer_name="Adam")
+    model = my_SGD(lmb=0.0, lr=0.001, n_components=5, n_epochs=200, optimizer_name="Adam")
     # optimazer SGD good if lr smaller
     model.fit(Z2, id_train, verbose=True)
     mapped_u, mapped_m = zip(*id_train)
     model.get_recovered_Z()
-    print(model.predict(mapped_u, mapped_m))
+    print(model.predict(mapped_u, mapped_m3))

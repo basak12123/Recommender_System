@@ -45,14 +45,16 @@ class my_SVD2(TruncatedSVD):
             # Update next step
             Z_previous = Z_next
 
-            if epoch > 1 and abs(loss - self.loss_list[-1]) < 0.001:
+            if epoch > 1 and epoch % 10 == 0 and abs(loss - self.loss_list[-1]) < 0.001:
                 print(f"Number of performed epochs due to small error changes: {epoch}.")
                 break
 
-            if epoch % 10 == 0:
-                self.loss_list.append(loss)
+            if epoch > 1 and epoch % 10 == 0:
                 if verbose:
                     print(f"Epoch {epoch}: loss = {loss:.4f}")
+                print(abs(loss - self.loss_list[-1]))
+
+            self.loss_list.append(loss)
 
         self.W_r = W_r
         self.H_r = H_r
@@ -91,7 +93,7 @@ if __name__ == "__main__":
 
     id_test_user, id_test_movie = tuple(zip(*idx_test))
 
-    model = my_SVD2(n_components=10, n_epochs=100, random_state=42)
-    model.fit(Z2_nt_imp, id_train)
+    model = my_SVD2(n_components=10, n_epochs=500, random_state=42)
+    model.fit(Z2_nt_imp, id_train, verbose=True)
     print(model.get_recovered_Z())
     print(model.predict(id_test_user, id_test_movie))
