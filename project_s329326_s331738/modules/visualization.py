@@ -11,7 +11,6 @@ def draw_plot_mean_rmse(csv_path):
     csv_path (str): Path to the CSV file containing 'r_component' and 'mean_rmse' columns.
     """
     df_mean = pd.read_csv(csv_path)
-    print(df_mean)
     sns.set(style="whitegrid")
 
     plt.figure(figsize=(10, 6))
@@ -52,7 +51,7 @@ def draw_boxplots_rmse(csv_path, components_to_plot=None):
     plt.title('Boxplot of RMSE across 5 Folds vs Number of Components', fontsize=16)
     plt.xlabel('Number of Components (r_component)', fontsize=14)
     plt.ylabel('RMSE', fontsize=14)
-    plt.xticks(components_to_plot, rotation=45, fontsize=12)
+    plt.xticks(rotation=45, fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(True)
     plt.tight_layout()
@@ -96,11 +95,21 @@ def draw_plot_mean_rmse2(csv_paths, model_labels=None):
     plt.show()
 
 
+# zeros:
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1.csv")
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF.csv")
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_1.csv")
 
+# means:
 draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_mean.csv")
-draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean.csv")
 
-# draw_plot_mean_rmse(
-#     ['path_to_model1.csv', 'path_to_model2.csv', 'path_to_model3.csv'],
-#     model_labels=['SVD', 'NMF', 'PCA']
-# )
+# means_user:
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_mean_user.csv")
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean_user.csv")
+
+# knn:
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_knn.csv")
+
+
+#draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
