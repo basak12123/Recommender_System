@@ -24,7 +24,7 @@ id_user_movies = get_id_of_full_data(ratings)
 
 # PARAM GRID
 SGD_param_grid = {
-    'n_components': [i for i in range(1, 5)],
+    'n_components': [5, 10, 50, 100, 150, 200],
     'lmb': [0.0]
 }
 
@@ -149,12 +149,12 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 # with mean:
 
-# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_means")
-# print(Stats_AvgRMSE_SGD)
-# print(Stats_FoldsRMSE_SGD)
-#
-# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_mean.csv", index=False)
-# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=False)
+Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_means")
+print(Stats_AvgRMSE_SGD)
+print(Stats_FoldsRMSE_SGD)
+
+Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_mean.csv", index=False)
+Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=False)
 
 # # SVD2 :
 #
@@ -213,9 +213,9 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 # Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean.csv", index=False)
 
 # with mean user:
-Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="nmf", imputing_style="fill_with_mean_by_users")
-print(Stats_AvgRMSE_NMF)
-print(Stats_FoldsRMSE_NMF)
-
-Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF_mean_user.csv", index=False)
-Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean_user.csv", index=False)
+# Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="nmf", imputing_style="fill_with_mean_by_users")
+# print(Stats_AvgRMSE_NMF)
+# print(Stats_FoldsRMSE_NMF)
+#
+# Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF_mean_user.csv", index=False)
+# Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean_user.csv", index=False)
