@@ -82,10 +82,11 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
             if type_of_model.lower() == "sgd":
                 model = my_SGD(
+                    lr=0.001,
                     lmb=params['lmb'],
                     n_components=params['n_components'],
                     optimizer_name="Adam",
-                    n_epochs=100
+                    n_epochs=200
                 )
                 model.fit(Z_train_gd, idx_train, verbose=False)
                 model.get_recovered_Z()
@@ -153,10 +154,10 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 # with mean:
 
-# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_means")
-# print(Stats_AvgRMSE_SGD)
-# print(Stats_FoldsRMSE_SGD)
-#
+Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_means")
+print(Stats_AvgRMSE_SGD)
+print(Stats_FoldsRMSE_SGD)
+
 # Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_mean.csv", index=False)
 # Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=False)
 
