@@ -8,7 +8,8 @@ import numpy as np
 import pandas as pd
 from project_s329326_s331738.modules.build_train_matrix import (get_id_of_full_data, split_train_test,
                                                                 convert_train_set_to_good_shape, build_test_set)
-from helper_functions import reshape_ratings_dataframe, imputate_data_with_0, imputate_data_with_mean, map_ids, imputate_data_with_mean_of_user, imputate_data_with_KNN
+from helper_functions import (reshape_ratings_dataframe, imputate_data_with_0, imputate_data_with_mean, map_ids,
+                              imputate_data_with_mean_of_user, imputate_data_with_KNN, imputate_data_with_PCA)
 
 # DATA
 ratings = pd.read_csv("../data/ratings.csv")
@@ -70,6 +71,9 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
             if imputing_style.lower() == "fill_with_knn":
                 Z_train_gd_imputeted = imputate_data_with_KNN(Z_train_gd)
+
+            if imputing_style.lower() == "fill_with_pca":
+                Z_train_gd_imputeted = imputate_data_with_PCA(Z_train_gd)
 
             idx_test = map_ids(test_set, usermap, moviemap)
             idx_train = map_ids(train_set, usermap, moviemap)
@@ -149,12 +153,12 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 # with mean:
 
-Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_means")
-print(Stats_AvgRMSE_SGD)
-print(Stats_FoldsRMSE_SGD)
-
-Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_mean.csv", index=False)
-Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=False)
+# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_means")
+# print(Stats_AvgRMSE_SGD)
+# print(Stats_FoldsRMSE_SGD)
+#
+# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_mean.csv", index=False)
+# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=False)
 
 # # SVD2 :
 #
@@ -187,12 +191,12 @@ Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_mean.csv", index=F
 
 # with means by users:
 
-# Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_knn")
-# print(Stats_AvgRMSE_SVD1)
-# print(Stats_FoldsRMSE_SVD1)
-#
-# Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_knn.csv", index=False)
-# Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_knn.csv", index=False)
+#Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_pca")
+#print(Stats_AvgRMSE_SVD1)
+#print(Stats_FoldsRMSE_SVD1)
+
+#Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_pca.csv", index=False)
+#Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_pca.csv", index=False)
 
 # NMF:
 

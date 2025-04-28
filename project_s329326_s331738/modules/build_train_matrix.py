@@ -3,7 +3,7 @@ import random
 import pandas as pd
 import numpy as np
 import os
-from helper_functions import reshape_ratings_dataframe, imputate_data_with_mean
+from .helper_functions import reshape_ratings_dataframe, imputate_data_with_mean
 
 
 def get_id_of_full_data(rating_df):
