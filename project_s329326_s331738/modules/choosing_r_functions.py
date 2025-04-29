@@ -30,7 +30,7 @@ SGD_param_grid = {
 }
 
 param_grid = {
-     'n_components': [1,5,20],
+     'n_components': [10, 15, 20, 25, 30, 35, 40, 45, 50, 60],
 }
 
 
@@ -218,9 +218,9 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 # Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean.csv", index=False)
 
 # with mean user:
-Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_pca")
+Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="nmf", imputing_style="fill_with_mean")
 print(Stats_AvgRMSE_NMF)
 print(Stats_FoldsRMSE_NMF)
 
-#Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_SVD2_pca.csv", index=False)
-#Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_SVD2_pca.csv", index=False)
+Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF_mean.csv", index=False)
+Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean.csv", index=False)
