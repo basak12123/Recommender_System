@@ -14,7 +14,7 @@ def draw_plot_mean_rmse(csv_path, name_model="SVD1", imputing='fill with 0'):
     sns.set(style="whitegrid")
 
     plt.figure(figsize=(10, 6))
-    sns.lineplot(data=df_mean, x='r_component', y='mean_rmse', marker='o', linewidth=2.5)
+    sns.lineplot(data=df_mean, x='r_component', y='mean_rmse', hue="lmb", marker='o', linewidth=2.5, palette="tab10")
 
     plt.title(f'Method of imputation: {imputing}', fontsize=12)
     plt.suptitle(f'Mean RMSE vs Number of Components for {name_model}', y=0.95, fontsize=18)
@@ -23,6 +23,30 @@ def draw_plot_mean_rmse(csv_path, name_model="SVD1", imputing='fill with 0'):
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+def draw_plot_mean_rmse_SGD_lambda(df):
+    """
+    Draws a line plot of mean RMSE vs r_component.
+
+    Parameters:
+    csv_path (str): Path to the CSV file containing 'r_component' and 'mean_rmse' columns.
+    """
+    sns.set(style="whitegrid")
+
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(data=df, x='r_component', y='mean_rmse', hue="lmb", marker='o', linewidth=2.5, palette="colorblind")
+
+    # plt.title(r'Mean RMSE of SGD model in dependence on choice of parameter $\lambda$ and $r$', fontsize=14)
+    plt.suptitle(r'Mean RMSE of SGD model in dependence on choice of parameter $\lambda$ and $r$', fontsize=18)
+    plt.xlabel('Number of Components (r_component)', fontsize=14)
+    plt.ylabel('Mean RMSE', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(True)
+    plt.legend(title=r"$\lambda$")
     plt.tight_layout()
     plt.show()
 
@@ -96,13 +120,14 @@ def draw_plot_mean_rmse2(csv_paths, model_labels=None):
     plt.show()
 
 
+
 # zeros:
-# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_all.csv", name_model='SGD', imputing=' - ')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_lambda.csv", name_model='SGD', imputing=' - ')
 # draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_mean.csv", name_model='SVD2', imputing='fill with mean')
 # draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_mean_user.csv", name_model='SVD2', imputing='fill with user mean')
-# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_pca.csv", name_model='SVD2', imputing='fill with using PCA')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1.csv", name_model='SVD2', imputing='fill with using PCA')
 # draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF.csv", name_model='NMF')
-# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_1.csv", name_model='NMF')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2.csv", name_model='NMF')
 
 
 # means:
@@ -121,3 +146,34 @@ def draw_plot_mean_rmse2(csv_paths, model_labels=None):
 # draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
 # draw_boxplots_rmse("../data/grid_search_FoldsRMSE_NMF_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
 # draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
+
+df_SGD = pd.read_csv("../data/grid_search_AvgRMSE_SGD_all.csv")
+df_SVD1_0 = pd.read_csv("../data/grid_search_AvgRMSE_SVD1_pca.csv")
+df_NMF_0 = pd.read_csv("../data/grid_search_AvgRMSE_NMF_pca.csv")
+df_SVD2_0 = pd.read_csv("../data/grid_search_AvgRMSE_SVD2_pca.csv")
+
+
+def compare_methods(list_of_df):
+    list_of_best_RMSE = []
+
+    for df in list_of_df:
+        list_of_best_RMSE.append(df.loc[df['mean_rmse'] == min(df['mean_rmse'])])
+
+    df_all = pd.concat(list_of_best_RMSE, ignore_index=True)
+    df_all.insert(0, 'model', ['SVD1', 'NMF', 'SDV2'])
+    return df_all
+
+
+df0 = pd.read_csv("../data/grid_search_AvgRMSE_SGD_lambda.csv")
+df1 = pd.read_csv("../data/grid_search_AvgRMSE_SGD_all.csv")
+df2 = df1[['lmb', 'r_component', 'mean_rmse']].loc[df1['r_component'].isin([1, 5, 10, 25])]
+
+df_full = pd.concat([df2, df0])
+print(df_full)
+
+# draw_plot_mean_rmse_SGD_lambda(df_full)
+
+
+print(df_full.groupby(["lmb", "r_component"]).min())
+print(df_full.loc[df_full.groupby("lmb")["mean_rmse"].idxmin()])
+
