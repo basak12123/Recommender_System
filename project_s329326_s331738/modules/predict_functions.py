@@ -26,7 +26,7 @@ def predict_data(test_file, model_data, model_type):
             j = movie_map[m]
             rating = Z_approx[i, j]
         else:
-            # If user or movie not seen in training, default to 0 (or any strategy)
+            # If user or movie not seen in training, default to 0
             rating = 0
 
         predictions[id_matrix, ] = [int(u), int(m), abs(rating)]

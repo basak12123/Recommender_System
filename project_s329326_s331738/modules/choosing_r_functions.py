@@ -143,84 +143,18 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 
 # SGD :
-
-# # with zeros:
-# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_0")
-# print(Stats_AvgRMSE_SGD)
-# print(Stats_FoldsRMSE_SGD)
-#
-# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_2.csv", index=False)
-# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_2.csv", index=False)
-
-# with mean:
-
 Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_0")
 print(Stats_AvgRMSE_SGD)
 print(Stats_FoldsRMSE_SGD)
 
-Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_lambda.csv", index=False)
-Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_lambda.csv", index=False)
+#Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_lambda.csv", index=False)
+#Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_lambda.csv", index=False)
 
-# # SVD2 :
-#
-# Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_mean")
-# print(Stats_AvgRMSE_SVD2)
-# print(Stats_FoldsRMSE_SVD2)
+# SVD2 :
+Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_mean")
+print(Stats_AvgRMSE_SVD2)
+print(Stats_FoldsRMSE_SVD2)
 #
 # Stats_AvgRMSE_SVD2.to_csv("../data/grid_search_AvgRMSE_SVD2_mean_2.csv", index=False)
 # Stats_FoldsRMSE_SVD2.to_csv("../data/grid_search_FoldsRMSE_SVD2_mean_2.csv", index=False)
 
-# SVD1 :
-
-# with zeros:
-
-# Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_0")
-# print(Stats_AvgRMSE_SVD1)
-# print(Stats_AvgRMSE_SVD1)
-
-# Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1.csv", index=False)
-# Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1.csv", index=False)
-
-# with means:
-
-# Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_mean")
-# print(Stats_AvgRMSE_SVD1)
-# print(Stats_FoldsRMSE_SVD1)
-#
-# Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_mean.csv", index=False)
-# Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_mean.csv", index=False)
-
-# with means by users:
-
-#Stats_AvgRMSE_SVD1, Stats_FoldsRMSE_SVD1 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd1", imputing_style="fill_with_pca")
-#print(Stats_AvgRMSE_SVD1)
-#print(Stats_FoldsRMSE_SVD1)
-
-#Stats_AvgRMSE_SVD1.to_csv("../data/grid_search_AvgRMSE_SVD1_pca.csv", index=False)
-#Stats_FoldsRMSE_SVD1.to_csv("../data/grid_search_FoldsRMSE_SVD1_pca.csv", index=False)
-
-# NMF:
-
-# # with zero
-# Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="nmf", imputing_style="fill_with_0")
-# print(Stats_AvgRMSE_NMF)
-# print(Stats_AvgRMSE_NMF)
-#
-# Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF.csv", index=False)
-# Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF.csv", index=False)
-
-# with mean
-# Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="nmf", imputing_style="fill_with_mean")
-# print(Stats_AvgRMSE_NMF)
-# print(Stats_FoldsRMSE_NMF)
-#
-# Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_NMF_mean.csv", index=False)
-# Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean.csv", index=False)
-
-# with mean user:
-# Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_pca")
-# print(Stats_AvgRMSE_NMF)
-# print(Stats_FoldsRMSE_NMF)
-#
-# Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_SVD2_pca.csv", index=False)
-# Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_SVD2_pca.csv", index=False)

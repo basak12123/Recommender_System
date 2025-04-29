@@ -15,10 +15,8 @@ item_map = {m: j for j, m in enumerate(item_ids)}
 n_users = len(user_ids)
 n_items = len(item_ids)
 
-# Stwórz pustą macierz z nan
 M = np.full((n_users, n_items), np.nan)
 
-# Wypełnij znane oceny
 for _, row in ratings.iterrows():
     i = user_map[row.userId]
     j = item_map[row.movieId]
@@ -49,15 +47,6 @@ def evaluate_knn_imputer(M, k, Z, mask_test):
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     return rmse
 
-# mask_non_nan = ~np.isnan(M)
-# coords = np.array(np.where(mask_non_nan)).T  # wszystkie (user, item) pary, gdzie istnieje ocena
-# idx_train, idx_test = train_test_split(coords, test_size=0.2, random_state=42)
-#
-# # Maska testowa ma ten sam shape co M
-# mask_test = np.zeros(M.shape, dtype=bool)
-# for i, j in idx_test:
-#     mask_test[i, j] = True
-
 rt_train = build_train_set(ratings, 0.8)
 rt_test = build_test_set(ratings, rt_train)
 Z, _, _ = reshape_ratings_dataframe(ratings)
@@ -67,7 +56,6 @@ Z2_nt_imp = imputate_data_with_0(Z2_nt)
 idx_test = map_ids(rt_test, usermap, moviemap)
 idx_train = map_ids(rt_train, usermap, moviemap)
 
-# Szukamy najlepszego k
 k_list = [i for i in range(1, 16)]
 results = {}
 
@@ -76,6 +64,5 @@ for k in k_list:
     results[k] = rmse
     print(f"k={k}, RMSE={rmse:.4f}")
 
-# Wybieramy k z najniższym RMSE
 best_k = min(results, key=results.get)
 print(f"Najlepsze k: {best_k}")

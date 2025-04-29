@@ -73,7 +73,7 @@ class my_SVD2(TruncatedSVD):
 
 
 if __name__ == "__main__":
-    from helper_functions import reshape_ratings_dataframe, imputate_data_with_mean, map_ids
+    from helper_functions import imputate_data_with_mean, map_ids
     from project_s329326_s331738.modules.build_train_matrix import build_train_set, build_test_set, convert_train_set_to_good_shape
 
     ratings = pd.read_csv("../data/ratings.csv")
