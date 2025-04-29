@@ -13,9 +13,10 @@ def compute_RMSE_model(test_file_with_ratings, pred_file_of_test_set):
         print("Error: Both CSV files must contain a 'rating' column.")
         return
 
-    rmse = np.sqrt(mean_squared_error(df_true['rating'], df_pred['rating']))
-
-    print(f"RMSE: {rmse:.4f}")
+    for model in pd.unique(df_pred["model_type"]):
+        df_model = df_pred.loc[df_pred["model_type"] == model]
+        rmse = np.sqrt(mean_squared_error(df_true['rating'], df_model['rating']))
+        print(f"RMSE for {model}: {rmse:.4f}")
 
 
 def parse_arguments():

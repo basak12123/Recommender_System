@@ -1,6 +1,7 @@
 import argparse
 import os
 import pickle
+import pandas as pd
 from modules.NMF import my_NMF
 from modules.helper_functions import reshape_ratings_dataframe, imputate_data_with_0
 from modules.train_functions import train_model
@@ -51,7 +52,18 @@ def main():
         with open(args.model_path, "rb") as f:
             model_data = pickle.load(f)
 
-        predictions = predict_data(args.test_file, model_data)
+        if model_type == "ALL":
+            types_of_models = ["NMF", "SVD1", "SVD2", "SGD"]
+            results = []
+            for name, model in model_data[0].items():
+                results.append(predict_data(args.test_file, (model, model_data[1], model_data[2]), name))
+
+            res = pd.concat(results)
+            os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
+            res.to_csv(args.output_file, index=False)
+            return
+
+        predictions = predict_data(args.test_file, model_data, model_type)
 
         os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
         predictions.to_csv(args.output_file, index=False)

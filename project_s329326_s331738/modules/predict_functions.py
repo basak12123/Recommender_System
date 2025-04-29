@@ -2,13 +2,13 @@ import pandas as pd
 import numpy as np
 
 
-def predict_data(test_file, model_data):
+def predict_data(test_file, model_data, model_type):
     """
     Reads a test CSV with columns: userId, movieId.
     Uses the stored Z_approx, user_map, movie_map to produce predictions.
     Missing userId/movieId combos produce a default rating (e.g., 0 or average).
 
-    Returns a list of dicts with keys: 'userId', 'movieId', 'rating'.
+    Returns a list of dicts with keys: 'model_type', 'userId', 'movieId', 'rating'.
     """
     df = pd.read_csv(test_file)
 
@@ -32,8 +32,9 @@ def predict_data(test_file, model_data):
         predictions[id_matrix, ] = [int(u), int(m), abs(rating)]
         id_matrix += 1
 
-    convert_dict = {'userId': int, 'movieId': int, 'rating': float}
+    convert_dict = {'model_type': str, 'userId': int, 'movieId': int, 'rating': float}
     predictions_df = pd.DataFrame(predictions,  columns=['userId', 'movieId', 'rating'])
+    predictions_df.insert(0, 'model_type', model_type)
     predictions_df = predictions_df.astype(convert_dict)
 
     return predictions_df
