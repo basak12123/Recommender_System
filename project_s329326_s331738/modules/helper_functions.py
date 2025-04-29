@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.impute import KNNImputer
-from .imputation_PCA import pca_imputer
+from imputation_PCA import pca_imputer
 
 
 def reshape_ratings_dataframe(ratings_df):

@@ -25,8 +25,8 @@ id_user_movies = get_id_of_full_data(ratings)
 
 # PARAM GRID
 SGD_param_grid = {
-    'n_components': [5, 10, 20,  50, 100, 150],
-    'lmb': [0.0]
+    'n_components': [1, 5, 10, 25],
+    'lmb': [0.001, 0.01, 0.05, 0.1, 1]
 }
 
 param_grid = {
@@ -154,12 +154,12 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 
 # with mean:
 
-# Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_means")
-# print(Stats_AvgRMSE_SGD)
-# print(Stats_FoldsRMSE_SGD)
-#
-# Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD.csv", index=False)
-# Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD.csv", index=False)
+Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, num_of_kfolds=5, type_of_model="sgd", imputing_style="fill_with_0")
+print(Stats_AvgRMSE_SGD)
+print(Stats_FoldsRMSE_SGD)
+
+Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_lambda.csv", index=False)
+Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_lambda.csv", index=False)
 
 # # SVD2 :
 #
@@ -218,9 +218,9 @@ def GridSearchCV(ratings, grid_param, num_of_kfolds, type_of_model="SGD", imputi
 # Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_NMF_mean.csv", index=False)
 
 # with mean user:
-Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_pca")
-print(Stats_AvgRMSE_NMF)
-print(Stats_FoldsRMSE_NMF)
-
-Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_SVD2_pca.csv", index=False)
-Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_SVD2_pca.csv", index=False)
+# Stats_AvgRMSE_NMF, Stats_FoldsRMSE_NMF = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_pca")
+# print(Stats_AvgRMSE_NMF)
+# print(Stats_FoldsRMSE_NMF)
+#
+# Stats_AvgRMSE_NMF.to_csv("../data/grid_search_AvgRMSE_SVD2_pca.csv", index=False)
+# Stats_FoldsRMSE_NMF.to_csv("../data/grid_search_FoldsRMSE_SVD2_pca.csv", index=False)
