@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def draw_plot_mean_rmse(csv_path):
+def draw_plot_mean_rmse(csv_path, name_model="SVD1", imputing='fill with 0'):
     """
     Draws a line plot of mean RMSE vs r_component.
 
@@ -16,7 +16,8 @@ def draw_plot_mean_rmse(csv_path):
     plt.figure(figsize=(10, 6))
     sns.lineplot(data=df_mean, x='r_component', y='mean_rmse', marker='o', linewidth=2.5)
 
-    plt.title('Mean RMSE vs Number of Components', fontsize=16)
+    plt.title(f'Method of imputation: {imputing}', fontsize=12)
+    plt.suptitle(f'Mean RMSE vs Number of Components for {name_model}', y=0.95, fontsize=18)
     plt.xlabel('Number of Components (r_component)', fontsize=14)
     plt.ylabel('Mean RMSE', fontsize=14)
     plt.xticks(fontsize=12)
@@ -43,7 +44,7 @@ def draw_boxplots_rmse(csv_path, components_to_plot=None):
     if components_to_plot is not None:
         df_long = df_long[df_long['r_component'].isin(components_to_plot)]
 
-    sns.set(style="whitegrid")
+    #sns.set(style="whitegrid")
 
     plt.figure(figsize=(14, 7))
     sns.boxplot(data=df_long, x='r_component', y='RMSE')
@@ -96,20 +97,25 @@ def draw_plot_mean_rmse2(csv_paths, model_labels=None):
 
 
 # zeros:
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1.csv")
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF.csv")
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_1.csv")
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2.csv", name_model='SVD2', imputing='fill with 0')
+draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_mean.csv", name_model='SVD2', imputing='fill with mean')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF.csv", name_model='NMF')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_1.csv", name_model='NMF')
+
 
 # means:
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_mean.csv")
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean.csv")
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_mean.csv", name_model='SVD1', imputing='fill with mean')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean.csv", name_model='NMF', imputing='fill with mean')
 
-# means_user:
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_mean_user.csv")
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean_user.csv")
+# # means_user:
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_mean_user.csv", name_model='SVD1', imputing='fill with user mean')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean_user.csv", name_model='NMF', imputing='fill with user mean')
 
 # knn:
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_knn.csv")
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_knn.csv")
 
-
-#draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
+#
+# draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
+# draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
+# draw_boxplots_rmse("../data/grid_search_FoldsRMSE_NMF_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
+# draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
