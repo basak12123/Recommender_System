@@ -64,7 +64,7 @@ class my_SGD:
             epoch_loss = 0.0
 
             for rows_batch, cols_batch, ratings_batch in train_loader:
-                predictions = torch.sum(W_r[rows_batch] @ H_r[:, cols_batch], dim=1)
+                predictions = torch.sum(W_r[rows_batch] * H_r[:, cols_batch].T, dim=1)
                 error = predictions - ratings_batch
 
                 reg_W = torch.sum(W_r[rows_batch] ** 2)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     Z2_train = build_train_set(ratings, 0.8)
     id_train = map_ids(Z2_train, usermap, moviemap)
 
-    model = my_SGD(lmb=0.0, lr=0.001, n_components=5, n_epochs=200, optimizer_name="Adam")
+    model = my_SGD(lmb=0.0, lr=0.001, n_components=5, n_epochs=500, optimizer_name="Adam")
     # optimazer SGD good if lr smaller
     model.fit(Z2, id_train, verbose=True)
     mapped_u, mapped_m = zip(*id_train)
