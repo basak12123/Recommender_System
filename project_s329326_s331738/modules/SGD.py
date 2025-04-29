@@ -7,21 +7,10 @@ from torch.utils.data import DataLoader, TensorDataset
 class my_SGD:
     """
     SGD (Stochastic Gradient Descent) model
-
     """
 
     def __init__(self, lr=0.001, lmb=0, n_components=5, n_epochs=100, batch_size=1024, optimizer_name="Adam",
                  device=None):
-        """
-        Initializing of SGD model where chosen optimizer minimizes function:
-
-        :param lr: learning rate
-        :param lmb: ridge penalty rate, if lmb=0 then sum of squared errors is minimize
-        :param n_epochs: number of repeats
-        :param optimizer_name:
-        :param batch_size:
-        :param device:
-        """
 
         self.lr = lr
         self.lmb = lmb
@@ -94,10 +83,6 @@ class my_SGD:
         return self
 
     def get_recovered_Z(self):
-        """
-        Recovering Z function with proper rounding
-        :return:
-        """
         with torch.no_grad():
             Z_recovered_tensor = torch.matmul(self.W_r, self.H_r)
         Z_recovered_array = Z_recovered_tensor.detach().numpy()
@@ -108,12 +93,6 @@ class my_SGD:
         return pd.DataFrame(self.recovered_Z)
 
     def predict(self, user_index, item_index):
-        """
-        To do
-        :param user_index:
-        :param item_index:
-        :return:
-        """
         ids = zip(user_index, item_index)
         return self.recovered_Z[tuple(zip(*ids))]
 

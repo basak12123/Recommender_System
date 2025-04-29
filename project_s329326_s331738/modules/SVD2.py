@@ -10,7 +10,7 @@ class my_SVD2(TruncatedSVD):
         Initialize the SVD1 model.
 
         :param n_components: Number of singular values/components to keep (rank r).
-        :param random_state: Random seed.
+        :param n_epochs: Number of iterations of algorithm
         """
         super().__init__(n_components=n_components)
         self.n_epochs = n_epochs
@@ -21,8 +21,6 @@ class my_SVD2(TruncatedSVD):
     def fit(self, Z, id_train_set, verbose=False):
         """
         Fit the TruncatedSVD model to the input matrix Z, and compute W and H.
-
-        :param Z: np.ndarray, shape (n_users, n_items). Fully populated (no missing entries) rating matrix.
         """
         train_rows, train_cols = zip(*id_train_set)
         Z_np = np.array(Z)
