@@ -97,14 +97,16 @@ def draw_plot_mean_rmse2(csv_paths, model_labels=None):
 
 
 # zeros:
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2.csv", name_model='SVD2', imputing='fill with 0')
-draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_mean.csv", name_model='SVD2', imputing='fill with mean')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_all.csv", name_model='SGD', imputing=' - ')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_mean.csv", name_model='SVD2', imputing='fill with mean')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_mean_user.csv", name_model='SVD2', imputing='fill with user mean')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_pca.csv", name_model='SVD2', imputing='fill with using PCA')
 # draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF.csv", name_model='NMF')
 # draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SGD_1.csv", name_model='NMF')
 
 
 # means:
-# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_mean.csv", name_model='SVD1', imputing='fill with mean')
+# draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean.csv", name_model='NMF', imputing='fill with mean')
 # draw_plot_mean_rmse("../data/grid_search_AvgRMSE_NMF_mean.csv", name_model='NMF', imputing='fill with mean')
 
 # # means_user:
@@ -115,7 +117,7 @@ draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD2_mean.csv", name_model='SVD
 # draw_plot_mean_rmse("../data/grid_search_AvgRMSE_SVD1_knn.csv")
 
 #
-# draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
+# draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SGD_all.csv")
 # draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
 # draw_boxplots_rmse("../data/grid_search_FoldsRMSE_NMF_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
 # draw_boxplots_rmse("../data/grid_search_FoldsRMSE_SVD1_mean.csv", components_to_plot=[4, 10, 16, 20, 26, 30, 50])
