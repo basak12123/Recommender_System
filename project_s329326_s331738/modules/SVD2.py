@@ -17,7 +17,6 @@ class my_SVD2(TruncatedSVD):
         self.W_r = None
         self.H_r = None
         self.recovered_Z = None
-        self.loss_list = []
 
     def fit(self, Z, id_train_set, verbose=False):
         """
@@ -32,7 +31,7 @@ class my_SVD2(TruncatedSVD):
 
         for epoch in range(self.n_epochs):
             # SVD on previous step Z_previous (from previous step)
-            W_r = self.fit_transform(Z_previous) # TU ZMIENILAM Z super
+            W_r = self.fit_transform(Z_previous)
             H_r = self.components_
             Z_previous = W_r @ H_r
 
@@ -46,16 +45,13 @@ class my_SVD2(TruncatedSVD):
             # Update next step
             Z_previous = Z_next
 
-            if epoch > 1 and abs(loss - self.loss_list[-1]) < 100:
+            if abs(loss) < 0.01:
                 print(f"Number of performed epochs due to small error changes: {epoch}.")
                 break
 
-            if epoch > 1 and epoch % 10 == 0:
+            if epoch % 10 == 0:
                 if verbose:
                     print(f"Epoch {epoch}: loss = {loss:.4f}")
-
-            self.loss_list.append(loss)
-
 
 
         self.W_r = W_r
@@ -95,7 +91,7 @@ if __name__ == "__main__":
 
     id_test_user, id_test_movie = tuple(zip(*idx_test))
 
-    model = my_SVD2(n_components=4, n_epochs=500)
+    model = my_SVD2(n_components=4, n_epochs=1000)
     model.fit(Z2_nt_imp, id_train, verbose=True)
     print(model.get_recovered_Z())
     print(model.predict(id_test_user, id_test_movie))
