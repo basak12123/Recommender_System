@@ -25,8 +25,8 @@ id_user_movies = get_id_of_full_data(ratings)
 
 # PARAM GRID
 SGD_param_grid = {
-    'n_components': [1, 5, 10, 25],
-    'lmb': [0.001, 0.01, 0.05, 0.1, 1]
+    'n_components': [1, 2, 3, 4, 5, 10],
+    'lmb': [0.01, 0.05, 0.1, 1]
 }
 
 param_grid = {
@@ -147,14 +147,13 @@ Stats_AvgRMSE_SGD, Stats_FoldsRMSE_SGD = GridSearchCV(ratings, SGD_param_grid, n
 print(Stats_AvgRMSE_SGD)
 print(Stats_FoldsRMSE_SGD)
 
-#Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_lambda.csv", index=False)
-#Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_lambda.csv", index=False)
+Stats_AvgRMSE_SGD.to_csv("../data/grid_search_AvgRMSE_SGD_2_lambda.csv", index=False)
+Stats_FoldsRMSE_SGD.to_csv("../data/grid_search_FoldsRMSE_SGD_2_lambda.csv", index=False)
 
 # SVD2 :
-Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_mean")
-print(Stats_AvgRMSE_SVD2)
-print(Stats_FoldsRMSE_SVD2)
+#Stats_AvgRMSE_SVD2, Stats_FoldsRMSE_SVD2 = GridSearchCV(ratings, param_grid, num_of_kfolds=5, type_of_model="svd2", imputing_style="fill_with_mean")
+#print(Stats_AvgRMSE_SVD2)
+#print(Stats_FoldsRMSE_SVD2)
 #
 # Stats_AvgRMSE_SVD2.to_csv("../data/grid_search_AvgRMSE_SVD2_mean_2.csv", index=False)
 # Stats_FoldsRMSE_SVD2.to_csv("../data/grid_search_FoldsRMSE_SVD2_mean_2.csv", index=False)
-

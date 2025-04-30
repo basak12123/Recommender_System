@@ -28,8 +28,8 @@ class my_SGD:
         self.loss_list = []
 
         Z_tensor = torch.tensor(np.array(Z), dtype=torch.float, device=self.device)
-        W_r = torch.randn((Z_tensor.shape[0], self.r), requires_grad=True, dtype=torch.float, device=self.device)
-        H_r = torch.randn((self.r, Z_tensor.shape[1]), requires_grad=True, dtype=torch.float, device=self.device)
+        W_r = torch.rand((Z_tensor.shape[0], self.r), requires_grad=True, dtype=torch.float, device=self.device)
+        H_r = torch.rand((self.r, Z_tensor.shape[1]), requires_grad=True, dtype=torch.float, device=self.device)
 
         # select unique indexes where data is nan for slicing W_r, H_r
         train_rows, train_cols = zip(*id_train_set)
